@@ -30,3 +30,26 @@ The setup flow has been outlined in the diagram below:
 
 ![Setup](https://user-images.githubusercontent.com/7746153/138066292-185cce2d-569d-4992-ac5f-131b86171ea8.png)
 
+The above example shows the creation of:
+
+1 layer
+
+```solidity
+function addLayer(string memory layerName) external onlyOwner editable
+```
+
+1 layer item
+
+```solidity
+function addLayerItem(string memory layerName, uint256 chance, string memory borgAttributeName) external onlyOwner editable
+```
+
+2 colours for the layer item
+
+```solidity
+function addColorToBorgAttribute(string memory borgAttributeName, string memory color, uint256[] memory positions) external onlyOwner editable
+```
+
+Borgs have 10 layers and a range of between 4-20 layer items per layer. It is also important to note that the contract requires locking for edit before a user can interact with the contract.
+
+
