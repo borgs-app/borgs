@@ -24,7 +24,7 @@ The source code for this can be found within.
 
 ## Life cycle
 
-The contract uses layers built up of layer items. The layer items are made up from colours-positions. The contract will have no layers/items upon creation and require them to be added. For this it may be useful to refer to the BorgImageReader project contained within. 
+The contract uses layers built up of layer items (also known as attributes). The layer items are made up from colours-positions. The contract will have no layers/items upon creation and require them to be added. For this it may be useful to refer to the BorgImageReader project contained within. 
 
 The setup flow has been outlined in the diagram below:
 
@@ -57,6 +57,11 @@ Borgs have 10 layers and a range of between 4-20 layer items per layer, this bei
 ```solidity
 function lock() external onlyOwner
 ```
+
+Once the contract has been setup and locked for edit (which can not be undone once done), then borgs can be generated. 
+
+![Generate Borg](https://user-images.githubusercontent.com/7746153/138068936-d2048fa7-d88c-4826-82fa-3daef6f02c5b.png)
+
 
 
 
