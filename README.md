@@ -104,3 +104,119 @@ There is also a way to remove a listing if the seller is getting cold feet (this
 function removeListing(uint256 tokenId) public
 ```
 
+### Getting a Borg
+
+Since the code to generate/show Borgs is all hosted on the blockchain, there needs to be a way to get the Borg. It is returned as a 1 dimensional array which needs to be converted into a 2 dimensional image after retrieval. 
+
+![Get Borg](https://user-images.githubusercontent.com/7746153/138071321-9f3c91f2-1240-4d46-a804-d0c54ea171d9.png)
+
+```solidity
+function getBorg(uint256 borgId) public view returns(string memory name, string[] memory image, string[] memory attributes, uint256 parentId1, uint256 parentId2, uint256 childId)
+```
+
+The code to convert this 1D array into an image has been provided below in a few different languages:
+
+### Javascript
+```javascript
+drawImage(imgHexValues) {
+        	var canvas = this.$el,
+            	ctx = canvas.getContext('2d'),
+            	width = 24,
+            	height = 24,
+            	scale = this.scale,
+            	sqrt = Math.sqrt(imgHexValues.length);
+
+        	ctx.clearRect(0, 0, canvas.width, canvas.height);
+        	canvas.width = width * scale;
+        	canvas.height = height * scale;
+
+        	imgHexValues.forEach((value, index) => {
+            	let xCoord = Math.floor(index % sqrt),
+                	yCoord = Math.floor(index / sqrt);
+
+            	ctx.fillStyle =
+                	value.length > 1
+                    	? `#${value.substr(-6)}${value.substr(0, 2)}`
+                    	: `#00000000`;
+            	ctx.fillRect(xCoord * scale, yCoord * scale, scale, scale);
+        	});
+    	}
+
+```
+
+### C#
+
+```CSharp
+/// <summary>
+        /// This is used to convert an array of hex pixels back into an argb image
+        /// </summary>
+        /// <param name="hexValues">The string hex values to convert to image (flat)</param>
+        /// <returns>A bitmap</returns>
+        public static Bitmap ConvertBorgToBitmap(List<string> hexValues)
+        {
+            // Assuming regular image ie. 24x24, 12x12, 48x48 etc.
+            var sqrt = (int)Math.Sqrt(hexValues.Count());
+            var bitmap = new Bitmap(sqrt, sqrt, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            for (int i = 0; i < hexValues.Count(); i++)
+            {
+                // Default white
+                var pixel = Color.White;
+
+                // If specified then isn’t white
+                if (!string.IsNullOrEmpty(hexValues[i]))
+                {
+                    var convertedHexValue = Convert.ToInt32(hexValues[i], 16);
+                    pixel = Color.FromArgb(convertedHexValue);
+                }
+
+                // Define 2d coords
+                var y = i / sqrt;
+                var x = i % sqrt;
+
+                // Set in place
+                bitmap.SetPixel(x, y, pixal);
+            }
+
+            // Return the built up image
+            return bitmap;
+        }
+```
+
+### Java
+
+```Java
+/// <summary>
+    /// This is used to convert an array of hex pixels back into an argb image
+    /// </summary>
+    /// <param name="hexValues">The string hex values to convert to image (flat)</param>
+    /// <returns>A buffered image</returns>
+    public static BufferedImage convertBorgToBufferedImage(String[] hexValues)
+    {
+        // Assuming regular image ie. 12x12, 24x24, 36x36 etc.
+        int sqrt = (int)Math.sqrt(hexValues.length);
+        BufferedImage image = new BufferedImage(sqrt, sqrt, BufferedImage.TYPE_INT_ARGB);
+
+        for (int i = 0; i < hexValues.length; i++)
+        {
+            // Default white
+            var pixel = Color.WHITE;
+
+            // If specified then isn’t white
+            if (hexValues[i] != null && !hexValues[i].trim().isEmpty())
+                pixel = Color.decode(hexValues[i]);
+
+            // Define 2d coords
+            int y = i / sqrt;
+            int x = i % sqrt;
+
+            // Set in place
+            image.setRGB(x, y, pixal.getRGB());
+        }
+
+        // Return the built up image
+        return image;
+    }
+```
+
+
