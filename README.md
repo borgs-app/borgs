@@ -24,5 +24,9 @@ The source code for this can be found within.
 
 ## Life cycle
 
+The contract uses layers built up of layer items. The layer items are made up from colours-positions. The contract will have no layers/items upon creation and require them to be added. For this it may be useful to refer to the BorgImageReader project contained within. 
 
+The setup flow has been outlined in the diagram below:
+
+![Setup](https://user-images.githubusercontent.com/7746153/138066292-185cce2d-569d-4992-ac5f-131b86171ea8.png)
 
