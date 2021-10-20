@@ -88,6 +88,19 @@ The Borgs can also be sold/purchased via this same contract. If you provide the 
 
 ![Private Sale](https://user-images.githubusercontent.com/7746153/138070382-08d078dc-1aa3-481f-a812-99bb48571625.png)
 
+```solidity
+function addListing(uint256 tokenId, uint256 price, address buyer) public
+```
 
+```solidity
+function purchaseListing(uint256 tokenId) public payable
+```
 
+There is also a way to remove a listing if the seller is getting cold feet (this can however only be performed by the seller themselves).
+
+![Remove Listing](https://user-images.githubusercontent.com/7746153/138070896-60b1a273-877b-426a-a5d7-c4d655f823b4.png)
+
+```solidity
+function removeListing(uint256 tokenId) public
+```
 
