@@ -1,0 +1,2052 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>BorgLink</name>
+    </assembly>
+    <members>
+        <member name="T:BorgLink.Context.Contexts.BorgContext">
+            <summary>
+            Database context
+            </summary>
+        </member>
+        <member name="P:BorgLink.Context.Contexts.BorgContext.Borgs">
+            <summary>
+            The "[dbo].[Borgs]" table
+            </summary>
+        </member>
+        <member name="P:BorgLink.Context.Contexts.BorgContext.Attributes">
+            <summary>
+            The "[dbo].[Attributes]" table
+            </summary>
+        </member>
+        <member name="P:BorgLink.Context.Contexts.BorgContext.BorgAttributes">
+            <summary>
+            The "[dbo].[Borgattributes]" table
+            </summary>
+        </member>
+        <member name="M:BorgLink.Context.Contexts.BorgContext.#ctor(Microsoft.EntityFrameworkCore.DbContextOptions{BorgLink.Context.Contexts.BorgContext})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="options">The database options</param>
+        </member>
+        <member name="M:BorgLink.Context.Contexts.BorgContext.OnModelCreating(Microsoft.EntityFrameworkCore.ModelBuilder)">
+            <summary>
+            Called on model creation (mapping can be done here)
+            </summary>
+            <param name="builder">Maps the relationships etc. once models are built</param>
+        </member>
+        <member name="T:BorgLink.Controllers.BaseController">
+            <summary>
+            Shared controller functionality
+            </summary>
+        </member>
+        <member name="F:BorgLink.Controllers.BaseController._cacheService">
+            <summary>
+            The cache
+            </summary>
+        </member>
+        <member name="M:BorgLink.Controllers.BaseController.#ctor(BorgLink.Services.MemoryCacheService)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="cacheService">The cache</param>
+        </member>
+        <member name="M:BorgLink.Controllers.BaseController.GetCachedItem``1(System.String,System.Func{``0},System.Nullable{System.Int64})">
+            <summary>
+            Gets or sets item from cache if doesnt already exist
+            </summary>
+            <typeparam name="T">The type to cache</typeparam>
+            <param name="cacheKey">What to cahce the object under</param>
+            <param name="action">The action to get the item</param>
+            <param name="expiresInSeconds">When to expire item from cache (in seconds)</param>
+            <returns>Cached item</returns>
+        </member>
+        <member name="T:BorgLink.Controllers.BorgController">
+            <summary>
+            Borgs interface
+            </summary>
+        </member>
+        <member name="M:BorgLink.Controllers.BorgController.#ctor(BorgLink.Services.BorgService,BorgLink.Services.Ethereum.BorgTokenService,BorgLink.Services.MemoryCacheService,Microsoft.Extensions.Logging.ILogger{BorgLink.Controllers.BorgController},AutoMapper.IMapper)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="borgService"></param>
+            <param name="borgTokenService"></param>
+            <param name="cacheService"></param>
+            <param name="logger"></param>
+            <param name="mapper"></param>
+        </member>
+        <member name="M:BorgLink.Controllers.BorgController.SaveBorg(System.Int32)">
+            <summary>
+            Private: Used to generate/regenerate a generated borg (supply obj.Object.BorgId). This 
+            will not duplicate inserts
+            </summary>
+            <param name="id">The borg</param>
+            <returns>The url of the borg</returns>
+        </member>
+        <member name="M:BorgLink.Controllers.BorgController.GetAllBorgsAsync(System.Nullable{System.Int32},System.Nullable{System.Int32},System.String,BorgLink.Models.Enums.Condition,System.UInt32,System.UInt32)">
+            <summary>
+            Public: Gets all borgs
+            </summary>
+            <param name="parentId">The parent to filter by (optional)</param>
+            <param name="childId">The child to filter by (optional)</param>
+            <param name="attributes">The attributes to filter by (optional)</param>
+            <param name="condition">The condition to filter by (optional)</param>
+            <param name="pageNumber">The page to retrieve</param>
+            <param name="perPage">The number to display per page</param>
+            <returns>Borgs</returns>
+        </member>
+        <member name="M:BorgLink.Controllers.BorgController.GetAllBorgAttributeCountsAsync">
+            <summary>
+            Public: Gets all borgs attributes and how many times they have been used)
+            </summary>
+            <returns>Borgs</returns>
+        </member>
+        <member name="M:BorgLink.Controllers.BorgController.GetRarityOfBorgAsync(System.Int32)">
+            <summary>
+            Public: Gets the rarity of a borg
+            </summary>
+            <param name="id">The borg to check rarity of</param>
+            <returns>Borgs</returns>
+        </member>
+        <member name="M:BorgLink.Controllers.BorgController.GetBorgByIdAsync(System.Int32)">
+            <summary>
+            Public: Gets a borg by id
+            </summary>
+            <param name="id">The borg</param>
+            <returns>Borgs</returns>
+        </member>
+        <member name="M:BorgLink.Controllers.BorgController.GetOpenseaBorgByIdAsync(System.Int32)">
+            <summary>
+            Public: Gets a borg by id to be displayed on OpenSea
+            </summary>
+            <param name="id">The borg</param>
+            <returns>Borgs</returns>
+        </member>
+        <member name="T:BorgLink.Extensions.DbContextExtensions">
+            <summary>
+            Extension methods for DbContext
+            </summary>
+        </member>
+        <member name="M:BorgLink.Extensions.DbContextExtensions.EnsureSaveChanges(Microsoft.EntityFrameworkCore.DbContext)">
+            <summary>
+            Returns success if any changes have been persited - (anything > 0)
+            </summary>
+            <param name="context">The context to call this from</param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Extensions.DbContextExtensions.EnsureSaveChangesAsync(Microsoft.EntityFrameworkCore.DbContext)">
+            <summary>
+            Returns success if any changes have been persited asynchronously - (anything > 0)
+            </summary>
+            <param name="context">The context to call this from</param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Extensions.DbContextExtensions.DetachAllEntities(Microsoft.EntityFrameworkCore.DbContext)">
+            <summary>
+            Detach all attached entities
+            </summary>
+        </member>
+        <member name="T:BorgLink.Extensions.ServiceProviderExtensions">
+            <summary>
+            Extension methods for IServiceProvider
+            </summary>
+        </member>
+        <member name="M:BorgLink.Extensions.ServiceProviderExtensions.SetContext``1(Microsoft.Extensions.DependencyInjection.IServiceCollection,System.String)">
+            <summary>
+            Sets a database context into the service collection
+            </summary>
+            <typeparam name="T">The type of context (T:DbContext)</typeparam>
+            <param name="services">The service provider</param>
+            <param name="connectionString">The connection string of the connection</param>
+            <returns>The service collection</returns>
+        </member>
+        <member name="M:BorgLink.Extensions.ServiceProviderExtensions.AddGZipResponseCompression(Microsoft.Extensions.DependencyInjection.IServiceCollection,Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Adds gzip response compression to API
+            </summary>
+            <param name="services">The service provider</param>
+            <param name="config">Platform configuration</param>
+        </member>
+        <member name="T:BorgLink.Mapping.BorgsMappingProfile">
+            <summary>
+            The mapping profile
+            </summary>
+        </member>
+        <member name="M:BorgLink.Mapping.BorgsMappingProfile.#ctor">
+            <summary>
+            The constructor
+            </summary>
+        </member>
+        <member name="M:BorgLink.Mapping.BorgsMappingProfile.InitializeMap">
+            <summary>
+            Initialze and create all of the mappings of models - view models
+            </summary>
+        </member>
+        <member name="T:BorgLink.Mapping.Converters.OpenseaBorgConverter">
+            <summary>
+            Convert our borg to OpenSea standard
+            </summary>
+        </member>
+        <member name="M:BorgLink.Mapping.Converters.OpenseaBorgConverter.Convert(BorgLink.Models.Borg,BorgLink.Models.ViewModels.OpenseaBorgViewModel,AutoMapper.ResolutionContext)">
+            <summary>
+            Convert a borg to what OpenSea expects
+            </summary>
+            <param name="source">The source object</param>
+            <param name="destination">THe destination object to return</param>
+            <param name="context">The runtime context</param>
+            <returns>Converted message threads</returns>
+        </member>
+        <member name="T:BorgLink.Models.Attribute">
+            <summary>
+            An attribute (that makes up a borg)
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Attribute.Id">
+            <summary>
+            The unique identifier
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Attribute.Name">
+            <summary>
+            The attribute name
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Attribute.BorgAttributes">
+            <summary>
+            The owning borgs
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.AttributeCount">
+            <summary>
+            Report of attribute usage
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.AttributeCount.Name">
+            <summary>
+            The attribute being counted
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.AttributeCount.Count">
+            <summary>
+            The total number of times the attribute has been used
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.AzureSetting">
+            <summary>
+            The Azure KV Pair
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.AzureSetting.Name">
+            <summary>
+            The setting name
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.AzureSetting.Value">
+            <summary>
+            The setting value
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.AzureSetting.SlotSetting">
+            <summary>
+            If it is slot setting
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Borg">
+            <summary>
+            A borg
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.BorgId">
+            <summary>
+            The unique identifier
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.Url">
+            <summary>
+            The url of the borg
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.Attributes">
+            <summary>
+            Simple storage for attributes
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.ParentId1">
+            <summary>
+            If the borg has been bred, then this is the first parent
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.ParentId2">
+            <summary>
+            If the borg has been bred, then this is the second parent
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.Name">
+            <summary>
+            A name of the borg (if any) - set by owner
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.ChildId">
+            <summary>
+            If the borg has been bred, then this is the child ref
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Borg.BorgAttributes">
+            <summary>
+            The attributes that make up the borg
+            </summary>
+        </member>
+        <member name="M:BorgLink.Models.Borg.#ctor">
+            <summary>
+            Default constructor
+            </summary>
+        </member>
+        <member name="M:BorgLink.Models.Borg.#ctor(System.Int32,System.Nullable{System.Numerics.BigInteger},System.Nullable{System.Numerics.BigInteger})">
+            <summary>
+            Constructor for easy setup
+            </summary>
+            <param name="borgId">The borg</param>
+            <param name="parentId1">The parent borgs id (1)</param>
+            <param name="parentId2">The parent borgs id (2)</param>
+        </member>
+        <member name="T:BorgLink.Models.BorgAttribute">
+            <summary>
+            A borgs attribute (link)
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.BorgAttribute.Id">
+            <summary>
+            The unique identifier
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.BorgAttribute.BorgId">
+            <summary>
+            The borg link
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.BorgAttribute.AttributeId">
+            <summary>
+            The attribute link
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.BorgAttribute.Borg">
+            <summary>
+            The borg link
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.BorgAttribute.Attribute">
+            <summary>
+            The attribute link
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.DecimalResult">
+            <summary>
+            A wrapped decimal
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.DecimalResult.Result">
+            <summary>
+            The decimal
+            </summary>
+        </member>
+        <member name="M:BorgLink.Models.DecimalResult.#ctor(System.Decimal)">
+            <summary>
+            COnstructor
+            </summary>
+            <param name="result"></param>
+        </member>
+        <member name="T:BorgLink.Models.Enums.AssetType">
+            <summary>
+            For storage file types
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.AssetType.Test">
+            <summary>
+            Container = "test"
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.AssetType.Live">
+            <summary>
+            Constainer = "live"
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Enums.Condition">
+            <summary>
+            Filter for borg
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.Condition.Both">
+            <summary>
+            Both alive and dead
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.Condition.Alive">
+            <summary>
+            Child == null
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.Condition.Dead">
+            <summary>
+            Child != null
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Enums.ContainerLocation">
+            <summary>
+            Containers
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.ContainerLocation.Test">
+            <summary>
+            Container = "test"
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.ContainerLocation.Live">
+            <summary>
+            Constainer = "live"
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Enums.ResolutionContainer">
+            <summary>
+            Sub folders to store different resolution images
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.ResolutionContainer.Default">
+            <summary>
+            24x24
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.ResolutionContainer.Medium">
+            <summary>
+            600x600
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.ResolutionContainer.Large">
+            <summary>
+            1400x1400
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Enums.TimeUnit">
+            <summary>
+            Time units
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.MilliSeconds">
+            <summary>
+            Milli seconds
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.Seconds">
+            <summary>
+            Seconds
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.Minutes">
+            <summary>
+            Minutes
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.Hours">
+            <summary>
+            Hours
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.Days">
+            <summary>
+            Days
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.Weeks">
+            <summary>
+            Weeks
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.Months">
+            <summary>
+            Months
+            </summary>
+        </member>
+        <member name="F:BorgLink.Models.Enums.TimeUnit.Years">
+            <summary>
+            Years
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Maps.AttributeMap">
+            <summary>
+            Used to map the Attributes table
+            </summary>
+        </member>
+        <member name="M:BorgLink.Models.Maps.AttributeMap.#ctor(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{BorgLink.Models.Attribute})">
+            <summary>
+            Map the table
+            </summary>
+            <param name="entityTypeBuilder">The builder</param>
+        </member>
+        <member name="T:BorgLink.Models.Maps.BorgAttributeMap">
+            <summary>
+            Used to map the BorgAttributes table
+            </summary>
+        </member>
+        <member name="M:BorgLink.Models.Maps.BorgAttributeMap.#ctor(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{BorgLink.Models.BorgAttribute})">
+            <summary>
+            Map the table
+            </summary>
+            <param name="entityTypeBuilder">The builder</param>
+        </member>
+        <member name="T:BorgLink.Models.Maps.BorgsMap">
+            <summary>
+            Used to map the Borgs table
+            </summary>
+        </member>
+        <member name="M:BorgLink.Models.Maps.BorgsMap.#ctor(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder{BorgLink.Models.Borg})">
+            <summary>
+            Map the table
+            </summary>
+            <param name="entityTypeBuilder">The builder</param>
+        </member>
+        <member name="T:BorgLink.Models.Options.BasicAuthenticationOptions">
+            <summary>
+            Options for a Basoc authentication connection
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BasicAuthenticationOptions.UserName">
+            <summary>
+            The username
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BasicAuthenticationOptions.Password">
+            <summary>
+            The password
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.BorgEventListenerOptions">
+            <summary>
+            Options for the listener worker thread
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgEventListenerOptions.Enabled">
+            <summary>
+            If the service is enabled
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgEventListenerOptions.IntervalFrequency">
+            <summary>
+            The frequency of checking
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.BorgEventSyncOptions">
+            <summary>
+            Listener for the event sync work thread
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgEventSyncOptions.Enabled">
+            <summary>
+            If the service is enabled
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgEventSyncOptions.IntervalFrequency">
+            <summary>
+            The frequency of checking
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.BorgServiceOptions">
+            <summary>
+            Options (settings) for borg service
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgServiceOptions.FolderLocation">
+            <summary>
+            The container location
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgServiceOptions.BaseStorageUrl">
+            <summary>
+            Base Azure storage account url
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgServiceOptions.TestMode">
+            <summary>
+            If the app is in test mode
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.BorgTokenServiceOptions">
+            <summary>
+            The token service settings
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgTokenServiceOptions.Key">
+            <summary>
+            Private key for application
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgTokenServiceOptions.ContractAddress">
+            <summary>
+            Borg contract address
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgTokenServiceOptions.EndpointAddress">
+            <summary>
+            A node endpoint address
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgTokenServiceOptions.AbiCode">
+            <summary>
+            The abi code of the contract
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgTokenServiceOptions.ChainId">
+            <summary>
+            The chain id
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.BorgTokenServiceOptions.WebsocketEndpointAddress">
+            <summary>
+            Address might be different from node endpoint address (one that supports ws://)
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.StorageOptions">
+            <summary>
+            Options for storage
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.StorageOptions.Name">
+            <summary>
+            The storage account name
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.StorageOptions.AccessKeys">
+            <summary>
+            Account keys
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.StorageOptions.Url">
+            <summary>
+            Endpoint url
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.StorageOptions.SasExpiry">
+            <summary>
+            SaS expiry
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.StorageOptions.TestMode">
+            <summary>
+            If the app is in test mode
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.TwitterServiceOptions">
+            <summary>
+            Setting for twitter connection
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.TwitterServiceOptions.ApiKey">
+            <summary>
+            The connections key
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.TwitterServiceOptions.ApiSecret">
+            <summary>
+            The client secret
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.TwitterServiceOptions.Pincode">
+            <summary>
+            A secret pin code
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.TwitterServiceOptions.AccessToken">
+            <summary>
+            A secret access token
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.TwitterServiceOptions.AccessTokenSecret">
+            <summary>
+            The access token secret
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.UploadResolutionOptions">
+            <summary>
+            FOr defining resolutions to save borgs in
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.UploadResolutionOptions.ResolutionContainer">
+            <summary>
+            THe container name to save resolution of
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.UploadResolutionOptions.Width">
+            <summary>
+            The width of the uploaded image
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.UploadResolutionOptions.Height">
+            <summary>
+            The height of the uploaded image
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Options.WebhookServiceOptions">
+            <summary>
+            The options for the post webhook to regenerate site
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Options.WebhookServiceOptions.Endpoint">
+            <summary>
+            The endpoint 
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.Paging.Page">
+            <summary>
+            For returning pages of results
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Paging.Page.PageNumber">
+            <summary>
+            The current page number
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Paging.Page.PerPage">
+            <summary>
+            How many items to display per page
+            </summary>
+        </member>
+        <member name="M:BorgLink.Models.Paging.Page.#ctor(System.UInt32,System.UInt32)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="pageNumber">The current page number</param>
+            <param name="perPage">How many items to display per page</param>
+        </member>
+        <member name="T:BorgLink.Models.Paging.PagedResult`1">
+            <summary>
+            A page of results
+            </summary>
+            <typeparam name="T">THe type of results the page returns</typeparam>
+        </member>
+        <member name="P:BorgLink.Models.Paging.PagedResult`1.Page">
+            <summary>
+            The current page being returned
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Paging.PagedResult`1.TotalResults">
+            <summary>
+            The total number of results being returned
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.Paging.PagedResult`1.Results">
+            <summary>
+            The page of results
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.ViewModels.AttributeCountViewModel">
+            <summary>
+            Report of attribute usage
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.AttributeCountViewModel.Name">
+            <summary>
+            The attribute being counted
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.AttributeCountViewModel.Count">
+            <summary>
+            The total number of times the attribute has been used
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.ViewModels.AttributeViewModel">
+            <summary>
+            An attribute (that makes up a borg)
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.AttributeViewModel.Id">
+            <summary>
+            The unique identifier
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.AttributeViewModel.Name">
+            <summary>
+            The attribute name
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.ViewModels.BorgAttributeViewModel">
+            <summary>
+            A borgs attribute (link)
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgAttributeViewModel.Id">
+            <summary>
+            The unique identifier
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgAttributeViewModel.BorgId">
+            <summary>
+            The borg link
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgAttributeViewModel.AttributeId">
+            <summary>
+            The attribute link
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgAttributeViewModel.Attribute">
+            <summary>
+            The attribute link
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgAttributeViewModel.Borg">
+            <summary>
+            The borg link
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.ViewModels.BorgViewModel">
+            <summary>
+            The borg
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgViewModel.Id">
+            <summary>
+            The unique identifier (also known as tokenId)
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgViewModel.Url">
+            <summary>
+            The link to a hosted image
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgViewModel.ParentId1">
+            <summary>
+            The first parent
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgViewModel.ParentId2">
+            <summary>
+            The second parent
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgViewModel.ChildId">
+            <summary>
+            A child
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgViewModel.Name">
+            <summary>
+            A user set name - won't be populated in most instances so ignore (not included if null too)
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.BorgViewModel.BorgAttributes">
+            <summary>
+            A child
+            </summary>
+        </member>
+        <member name="T:BorgLink.Models.ViewModels.OpenseaBorgViewModel">
+            <summary>
+            Borg to be displayed on OpenSea
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.OpenseaBorgViewModel.Description">
+            <summary>
+            The borgs description
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.OpenseaBorgViewModel.External_url">
+            <summary>
+            The external url
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.OpenseaBorgViewModel.Image">
+            <summary>
+            The hosted image url
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.OpenseaBorgViewModel.Name">
+            <summary>
+            The borgs name
+            </summary>
+        </member>
+        <member name="P:BorgLink.Models.ViewModels.OpenseaBorgViewModel.Attributes">
+            <summary>
+            What makes up a borg
+            </summary>
+        </member>
+        <member name="T:BorgLink.Api.Models.CachedResultViewModel`1">
+            <summary>
+            The cache item (can be any object - T)
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="P:BorgLink.Api.Models.CachedResultViewModel`1.Item">
+            <summary>
+            The cached item
+            </summary>
+        </member>
+        <member name="P:BorgLink.Api.Models.CachedResultViewModel`1.DateCached">
+            <summary>
+            The date time the item was cahced
+            </summary>
+        </member>
+        <member name="T:BorgLink.Api.Models.StorageKey">
+            <summary>
+            The storage key
+            </summary>
+        </member>
+        <member name="P:BorgLink.Api.Models.StorageKey.Key">
+            <summary>
+            Key value
+            </summary>
+        </member>
+        <member name="P:BorgLink.Api.Models.StorageKey.ConnectionString">
+            <summary>
+            THe connection details
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.BorgParentsFunction">
+            <summary>
+            For getting borgs parents from contract
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.BorgParentsFunction.BorgId">
+            <summary>
+            The borg to get parents for
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.BorgParentsFunctionBase">
+            <summary>
+            For getting borgs parents from contract
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.BorgImageFunction">
+            <summary>
+            For getting a borgs image from the contract
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.BorgImageFunction.BorgId">
+            <summary>
+            The borg to get the image for
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.BorgImageFunctionBase">
+            <summary>
+            For getting a borgs image from the contract
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.GetBorgFunction">
+            <summary>
+            For getting the borg from the contract
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgFunction.BorgId">
+            <summary>
+            The borg to get
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.GetBorgFunctionBase">
+            <summary>
+            For getting the borg from the contract
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.GetBorgsAttributesFunction">
+            <summary>
+            For getting the borgs attributes from the contract
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgsAttributesFunction.BorgId">
+            <summary>
+            The borg to get attributes for
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.GetBorgsAttributesFunctionBase">
+            <summary>
+            For getting the borgs attributes from the contract
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.TransferEventDTO">
+            <summary>
+            Event for transferring
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.TransferEventDTOBase">
+            <summary>
+            Event for transferring
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.TransferEventDTOBase.From">
+            <summary>
+            Who to transfer from
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.TransferEventDTOBase.To">
+            <summary>
+            Who to transfer to
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.TransferEventDTOBase.Value">
+            <summary>
+            The value to transfer
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.GeneratedBorgEventDTO">
+            <summary>
+            For generating a borg
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.GeneratedBorgEventDTOBase">
+            <summary>
+            Event for generating a borg
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GeneratedBorgEventDTOBase.BorgId">
+            <summary>
+            The token id
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GeneratedBorgEventDTOBase.Creator">
+            <summary>
+            The creator of the borg (address)
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GeneratedBorgEventDTOBase.Timestamp">
+            <summary>
+            The time at which the event was fired
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.BredBorgEventDTO">
+            <summary>
+            Event for breeding a borg
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.BredBorgEventDTOBase">
+            <summary>
+            Event for breeding a borg
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.BredBorgEventDTOBase.ChildId">
+            <summary>
+            The new borg created
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.BredBorgEventDTOBase.ParentId1">
+            <summary>
+            THe first parent
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.BredBorgEventDTOBase.ParentId2">
+            <summary>
+            The second parent
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.BredBorgEventDTOBase.Breeder">
+            <summary>
+            The owner of the new child
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.BredBorgEventDTOBase.Timestamp">
+            <summary>
+            When the borg was bred
+            </summary>
+        </member>
+        <member name="T:BorgLink.Ethereum.GetBorgOutputDTO">
+            <summary>
+            For getting a borg from the contract
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgOutputDTO.Name">
+            <summary>
+            The given name
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgOutputDTO.Image">
+            <summary>
+            The borg image
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgOutputDTO.Attributes">
+            <summary>
+            The attributes which make up the image
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgOutputDTO.ParentId1">
+            <summary>
+            A prent if exists
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgOutputDTO.ParentId2">
+            <summary>
+            A parent if exists
+            </summary>
+        </member>
+        <member name="P:BorgLink.Ethereum.GetBorgOutputDTO.ChildId">
+            <summary>
+            A child if exists
+            </summary>
+        </member>
+        <member name="T:BorgLink.Program">
+            <summary>
+            Entry point to application
+            </summary>
+        </member>
+        <member name="M:BorgLink.Program.Main(System.String[])">
+            <summary>
+            Starting method
+            </summary>
+            <param name="args">Input params</param>
+        </member>
+        <member name="M:BorgLink.Program.CreateHostBuilder(System.String[])">
+            <summary>
+            Build application
+            </summary>
+            <param name="args">Input params</param>
+            <returns>Builder</returns>
+        </member>
+        <member name="T:BorgLink.Repositories.AttributeRepository">
+            <summary>
+            Used for CRUD on the attributes table
+            </summary>
+        </member>
+        <member name="M:BorgLink.Repositories.AttributeRepository.#ctor(BorgLink.Context.Contexts.BorgContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="context">The database context</param>
+        </member>
+        <member name="T:BorgLink.Repositories.BaseRepository`2">
+            <summary>
+            The base functionality of a repository - implements an interface
+            </summary>
+            <typeparam name="T">The type of repository</typeparam>
+            <typeparam name="T2">The context (X:DbContext)</typeparam>
+        </member>
+        <member name="F:BorgLink.Repositories.BaseRepository`2._context">
+            <summary>
+            Database context
+            </summary>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.#ctor(`1)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="context">The database context</param>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.Add(`0)">
+            <summary>
+            Add an item to the context
+            </summary>
+            <param name="item">Item to add to context</param>
+            <returns>Added item to context</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.AddRange(System.Collections.Generic.List{`0})">
+            <summary>
+            Add items to the context
+            </summary>
+            <param name="items">Items to add to context</param>
+            <returns>Added items to context</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.RemoveRange(System.Collections.Generic.List{`0})">
+            <summary>
+            Remove items to the context
+            </summary>
+            <returns>Removed items to context</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.GetAll(System.String)">
+            <summary>
+            Gets all items from context - is overrideable
+            </summary>
+            <param name="tableName">Optional tablename param</param>
+            <returns>List of items</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.Update(`0)">
+            <summary>
+            Updates a tracked item in the context
+            </summary>
+            <param name="item">The item to update</param>
+            <returns>The updated item</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.UpdateRange(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Updates items in context
+            </summary>
+            <param name="items">Items to update in context</param>
+            <returns>Updated items in context</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.Remove(`0)">
+            <summary>
+            Removes a tracked item in the context
+            </summary>
+            <param name="item">The item to remove</param>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.Save">
+            <summary>
+            Saves the context
+            </summary>
+            <returns>The number of records inserted/removed/updated</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.EnsureSaveChanges">
+            <summary>
+            Returns true if the number of updated entities > 0
+            </summary>
+            <returns>True/false</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.EnsureSaveChangesAsync">
+            <summary>
+            Returns true if the number of updated entities > 0 - asynchronously
+            </summary>
+            <returns>True/false</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.BaseRepository`2.DetachAllEntities">
+            <summary>
+            Detaches all current entities
+            </summary>
+        </member>
+        <member name="T:BorgLink.Repositories.BorgAttributeRepository">
+            <summary>
+            Used for CRUD on the borg attributes table
+            </summary>
+        </member>
+        <member name="M:BorgLink.Repositories.BorgAttributeRepository.#ctor(BorgLink.Context.Contexts.BorgContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="context">The database context</param>
+        </member>
+        <member name="M:BorgLink.Repositories.BorgAttributeRepository.GetAllWithAttribute">
+            <summary>
+            Gets all borg attributes with the attribute attached
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BorgLink.Repositories.BorgRepository">
+            <summary>
+            Used for CRUD on the borgs table
+            </summary>
+        </member>
+        <member name="M:BorgLink.Repositories.BorgRepository.#ctor(BorgLink.Context.Contexts.BorgContext)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="context">The database context</param>
+        </member>
+        <member name="M:BorgLink.Repositories.BorgRepository.GetAllWithAttributes">
+            <summary>
+            Gets all borgs with full mappings to attributes
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BorgLink.Repositories.IRepository`1">
+            <summary>
+            Interface of a repository
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BorgLink.Repositories.IRepository`1.Add(`0)">
+            <summary>
+            Add an item
+            </summary>
+            <param name="item">Item to add</param>
+            <returns>Added item (with updated id)</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.IRepository`1.Update(`0)">
+            <summary>
+            Update an item
+            </summary>
+            <param name="item">Item to update (must be trackd)</param>
+            <returns>Updated item</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.IRepository`1.UpdateRange(System.Collections.Generic.IEnumerable{`0})">
+            <summary>
+            Update items
+            </summary>
+            <param name="items">Items to update (must be trackd)</param>
+            <returns>Updated items</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.IRepository`1.GetAll(System.String)">
+            <summary>
+            Gets all items
+            </summary>
+            <param name="tableName">Optional tablename param</param>
+            <returns>List of items</returns>
+        </member>
+        <member name="M:BorgLink.Repositories.IRepository`1.Save">
+            <summary>
+            Save context
+            </summary>
+            <returns>Items updatd/inserted/removed in save</returns>
+        </member>
+        <member name="T:BorgLink.Services.BorgService">
+            <summary>
+            Service for all things borg
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.#ctor(BorgLink.Services.Ethereum.BorgTokenService,BorgLink.Services.Storage.Interfaces.IStorageService,BorgLink.Repositories.BorgRepository,BorgLink.Services.Platform.WebhookService,BorgLink.Repositories.BorgAttributeRepository,BorgLink.Repositories.AttributeRepository,Microsoft.Extensions.Options.IOptions{BorgLink.Models.Options.BorgServiceOptions})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="borgTokenService">The token service to talk to the blockchain</param>
+            <param name="storageService">The storage service to get/set images</param>
+            <param name="borgRepository">The borg database repository</param>
+            <param name="borgAttributeRepository">The borg attributes database repository</param>
+            <param name="attributeRepository">The attribute database repository</param>
+            <param name="options">The options/settings</param>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetBorgFromDatabaseById(System.Int32)">
+            <summary>
+            Gets a basic borg from the database (no relationships)
+            </summary>
+            <param name="borgId">The borg to get</param>
+            <returns>The borg requested (if exists)</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetFullBorgFromDatabaseById(System.Int32)">
+            <summary>
+            Gets the FULL borg from the database (ALL relationships)
+            </summary>
+            <param name="borgId">The borg to get</param>
+            <returns>The borg requested (if exists)</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.SaveBorgInDatabaseAsync(BorgLink.Models.Borg)">
+            <summary>
+            Save a borg to the databse
+            </summary>
+            <param name="borg">The borg to save</param>
+            <returns>The saved borg</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.SaveBorgAsync(BorgLink.Models.Borg,System.Boolean)">
+            <summary>
+            Save a borg in db
+            </summary>
+            <param name="borg">THe borg to save</param>
+            <param name="triggerWebhooks">If webhooks are to be triggered with creation</param>
+            <returns>The url of the uploaded borg</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.TryAddAttributesAsync(System.Collections.Generic.List{System.String})">
+            <summary>
+            Try to add attributes to db if they havent already been added
+            </summary>
+            <param name="attributes">The attributes to add</param>
+            <returns>The added attributes (if any)</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.AddBorgAttributesAsync(System.Int32,System.Collections.Generic.List{System.String})">
+            <summary>
+            Link attributes to a borg
+            </summary>
+            <param name="borgId">The borg to add attributes to</param>
+            <param name="attributes">The attributes to add to borg</param>
+            <returns>The operation success</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetUsedAttributeCounts">
+            <summary>
+            Get the total used attribute counts
+            </summary>
+            <returns>How many times each attribute has been used (that exists)</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetUsedAttributeCounts(System.Int32)">
+            <summary>
+            Get a borgs total used attribute counts
+            </summary>
+            <returns>How many times each attribute has been used (that exists)</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.SaveAttributesInDatabaseAsync(System.Collections.Generic.List{System.String})">
+            <summary>
+            Save attributes in the database
+            </summary>
+            <param name="attributes">The attributes to save</param>
+            <returns>The saved full attributes</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.SaveBorgAttributesInDatabaseAsync(System.Int32,System.Collections.Generic.List{System.Int32})">
+            <summary>
+            Saves a link between the attributes and a borg in the database
+            </summary>
+            <param name="borgId">The borg to save attributes for</param>
+            <param name="attributeIds">The attributes to save for the borg</param>
+            <returns>The saved links</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.UpdateParentsChildrenAsync(System.Int32,System.Int32,System.Int32)">
+            <summary>
+            This updates the parents/children or a borg
+            </summary>
+            <param name="parentAId">The first parent</param>
+            <param name="parentBId">The second parent</param>
+            <param name="childId">The child</param>
+            <returns>If the update was successful or not</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.ImportBorgAsync(System.Int32)">
+            <summary>
+            Imports a borg from the blockchain and uploads to storage
+            </summary>
+            <param name="borgId">The borg to save image from</param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetRarityAsync(System.Int32)">
+            <summary>
+            Get the rarity of a borg
+            </summary>
+            <param name="id">The borg to check rarity of</param>
+            <returns>The rarity of the borg</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetTotalBorgs(BorgLink.Models.Enums.Condition)">
+            <summary>
+            Counts total borgs based on condition
+            </summary>
+            <param name="condition">The condition of the borgs</param>
+            <returns>How many borgs of a certain condition exist</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetPagedBorgs(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Collections.Generic.List{System.String},System.Nullable{BorgLink.Models.Enums.Condition},BorgLink.Models.Paging.Page)">
+            <summary>
+            Get Borgs paged
+            </summary>
+            <param name="parentId">The parent to search by</param>
+            <param name="childId">The child to search by</param>
+            <param name="attributes">Any attributes to search by</param>
+            <param name="condition">The current condition of the borg to search by</param>
+            <param name="page">The page to get</param>
+            <returns>Paged Borgs</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetBorgs(System.Nullable{System.Int32},System.Nullable{System.Int32},System.Collections.Generic.List{System.String},System.Nullable{BorgLink.Models.Enums.Condition})">
+            <summary>
+            Gets borgs from database
+            </summary>
+            <param name="parentId">ParentA or ParentB id</param>
+            <param name="childId">The child</param>
+            <param name="attributes">Any attributes to filter by</param>
+            <param name="condition">The current condition of the borg to search by</param>
+            <returns>A list of borgs</returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgService.GetMissingBorgIds">
+            <summary>
+            Get all Borgs not in sequence
+            </summary>
+            <returns>Unsequenced Borgs (therefore missing)</returns>
+        </member>
+        <member name="T:BorgLink.Services.Ethereum.BorgTokenService">
+            <summary>
+            The token service
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.#ctor(AutoMapper.IMapper,Microsoft.Extensions.Options.IOptions{BorgLink.Models.Options.BorgTokenServiceOptions},Microsoft.Extensions.Logging.ILogger{BorgLink.Services.Ethereum.BorgTokenService})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="mapper">The mapper</param>
+            <param name="options">Options</param>
+            <param name="logger">The class logger</param>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.GetStandardTokenService">
+            <summary>
+            Gets a standard token service
+            </summary>
+            <returns>Morality token service</returns>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.GetBorgAsync(System.Int32)">
+            <summary>
+            Get Borg from blockchain
+            </summary>
+            <param name="borgId">The Borg to get</param>
+            <returns>A Borg</returns>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.WaitForTransaction(System.String,System.Int32,System.Int32)">
+            <summary>
+            Wait for a transaction to finish
+            </summary>
+            <param name="txHash">THe transaction to make sure is completed</param>
+            <param name="retryCount">Retry count</param>
+            <param name="timeoutInMilliseconds">The timeout count (milli seconds)</param>
+            <returns>If the transaction is a success</returns>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.GetBorgsParentsAsync(System.Int32)">
+            <summary>
+            Get a borgs parents
+            </summary>
+            <param name="borgId">The borg to get parents for</param>
+            <returns>The borgs parent ids</returns>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.GetBorgImageAsync(System.Int32)">
+            <summary>
+            Get a Borgs image from blockchain
+            </summary>
+            <param name="borgId">The borg to get</param>
+            <returns>The Borg image (flat list of colours in hex)</returns>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.GetBorgsAttributesAsync(System.Int32)">
+            <summary>
+            Get a Borgs attributes (what its made up of)
+            </summary>
+            <param name="borgId">The Borg to get attributes of</param>
+            <returns>List of Borg attributes</returns>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.BorgTokenService.SubscribeToBorgEvent``1(System.Func{BorgLink.Models.Borg,System.Boolean,System.Threading.Tasks.Task{BorgLink.Models.Borg}})">
+            <summary>
+            Subscribe to a borg event
+            </summary>
+            <typeparam name="T">The type of event to subscribe to</typeparam>
+            <param name="action">The action to execute on callback from event firing</param>
+            <returns>An async task</returns>
+        </member>
+        <member name="T:BorgLink.Services.Ethereum.TokenService">
+            <summary>
+            Token service - enables contract communication
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.TokenService.#ctor(Nethereum.Web3.Web3,System.String)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="web3">The web3 connection</param>
+            <param name="contractAddress">The contracts address</param>
+        </member>
+        <member name="M:BorgLink.Services.Ethereum.TokenService.GetWeb3">
+            <summary>
+            Get the web3 obj
+            </summary>
+            <returns>Web3</returns>
+        </member>
+        <member name="T:BorgLink.Services.BorgEventListenerService`1">
+            <summary>
+            Event listener service
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventListenerService`1.#ctor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="serviceScopeFactory">The service scope (from DI)</param>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventListenerService`1.SetupServices">
+            <summary>
+            Setup all the required services to use
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventListenerService`1.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            This is called on kick-off of applicaition
+            </summary>
+            <param name="stoppingToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventListenerService`1.SubscribeToEvent">
+            <summary>
+            Check for new events
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BorgLink.Services.BorgEventSyncService">
+            <summary>
+            Event sync service
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventSyncService.#ctor(Microsoft.Extensions.DependencyInjection.IServiceScopeFactory)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="serviceScopeFactory">The service scope (from DI)</param>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventSyncService.SetupServices">
+            <summary>
+            Setup all the required services to use
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventSyncService.ExecuteAsync(System.Threading.CancellationToken)">
+            <summary>
+            This is called on kick-off of applicaition
+            </summary>
+            <param name="stoppingToken"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.BorgEventSyncService.SyncEvents">
+            <summary>
+            Check for new events
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BorgLink.Services.MemoryCacheService">
+            <summary>
+            In house memory cache service (application cache)
+            </summary>
+        </member>
+        <member name="F:BorgLink.Services.MemoryCacheService._resetCacheToken">
+            <summary>
+            The cancellation source token
+            </summary>
+        </member>
+        <member name="F:BorgLink.Services.MemoryCacheService._cache">
+            <summary>
+            The memory cache
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.MemoryCacheService.#ctor(Microsoft.Extensions.Caching.Memory.IMemoryCache)">
+            <summary>
+            The constructor
+            </summary>
+            <param name="cache"></param>
+        </member>
+        <member name="M:BorgLink.Services.MemoryCacheService.SetValue``1(System.String,``0,System.TimeSpan)">
+            <summary>
+            Sets an item of type T into the cache for key
+            </summary>
+            <typeparam name="T">Type to set</typeparam>
+            <param name="key">The key to get the value with</param>
+            <param name="value">The value to store in cahce</param>
+            <param name="expiry">When the item should expire from cache</param>
+        </member>
+        <member name="M:BorgLink.Services.MemoryCacheService.RemoveValue(System.String)">
+            <summary>
+            Removes an item of type T from the cache for key
+            </summary>
+            <param name="key">The key to get the value with</param>
+        </member>
+        <member name="M:BorgLink.Services.MemoryCacheService.RemoveAllWithPrefixValue(System.String)">
+            <summary>
+            Removes an item of type T from the cache for key
+            </summary>
+            <param name="prefix">The key to get the value with</param>
+        </member>
+        <member name="M:BorgLink.Services.MemoryCacheService.GetAllKeys">
+            <summary>
+            Get all keys from memory cache
+            </summary>
+            <returns>All keys from memory cache</returns>
+        </member>
+        <member name="M:BorgLink.Services.MemoryCacheService.GetValue``1(System.String)">
+            <summary>
+            Gets a value T from the cache
+            </summary>
+            <typeparam name="T">Value type held by cache</typeparam>
+            <param name="key">The key of cache item</param>
+            <returns>Item of type T</returns>
+        </member>
+        <member name="M:BorgLink.Services.MemoryCacheService.Reset">
+            <summary>
+            Resets the cache
+            </summary>
+        </member>
+        <member name="T:BorgLink.Services.Middleware.CircumventRequestForOptionsMiddleware">
+            <summary>
+            Enables auto 200 response for CORS OPTIONS requests from browser
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Middleware.CircumventRequestForOptionsMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.Extensions.Logging.ILogger{BorgLink.Services.Middleware.CircumventRequestForOptionsMiddleware})">
+            <summary>
+            Constructor for the middleware
+            </summary>
+            <param name="next">The next middleware to be executed</param>
+            <param name="logger">The class logger</param>
+        </member>
+        <member name="M:BorgLink.Services.Middleware.CircumventRequestForOptionsMiddleware.Invoke(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Invoked via reflection on request passthrough
+            </summary>
+            <param name="context">The request context</param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.Middleware.CircumventRequestForOptionsMiddleware.Ok(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Replies with a 200 response
+            </summary>
+            <param name="context">The context to make the response to</param>
+            <returns>A completed task</returns>
+        </member>
+        <member name="T:BorgLink.Services.Middleware.ErrorHandlingMiddleware">
+            <summary>
+            Middleware to intercept 500 errors as to log and format proper response
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Middleware.ErrorHandlingMiddleware.#ctor(Microsoft.AspNetCore.Http.RequestDelegate,Microsoft.Extensions.Logging.ILogger{BorgLink.Services.Middleware.ErrorHandlingMiddleware})">
+            <summary>
+            Constructor for the middleware
+            </summary>
+            <param name="next">The next middleware to be executed</param>
+            <param name="logger">The class logger</param>
+        </member>
+        <member name="M:BorgLink.Services.Middleware.ErrorHandlingMiddleware.Invoke(Microsoft.AspNetCore.Http.HttpContext)">
+            <summary>
+            Invoked via reflection on request passthrough
+            </summary>
+            <param name="context">The request context</param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.Middleware.ErrorHandlingMiddleware.GenerateInternalServerError(Microsoft.AspNetCore.Http.HttpContext,System.Exception)">
+            <summary>
+            Replies with a 500 response and a special code for admin to identify in the logs
+            </summary>
+            <param name="context">The context to make the response to</param>
+            <param name="ex">The current exception thrown</param>
+            <returns>A completed task</returns>
+        </member>
+        <member name="T:BorgLink.Services.Platform.BaseHttpService">
+            <summary>
+            Base Http functions
+            </summary>
+        </member>
+        <member name="F:BorgLink.Services.Platform.BaseHttpService._httpClient">
+            <summary>
+            THe web client used to make Http calls
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Platform.BaseHttpService.#ctor(System.Net.Http.HttpClient)">
+            <summary>
+            Base Http service
+            </summary>
+            <param name="client">Web client</param>
+        </member>
+        <member name="M:BorgLink.Services.Platform.BaseHttpService.GetAsync``1(System.String,System.Collections.Generic.List{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Http GET
+            </summary>
+            <typeparam name="T">Response type</typeparam>
+            <param name="url">The extension</param>
+            <param name="additionalHeaders">Additional headers to set in request</param>
+            <returns>T</returns>
+        </member>
+        <member name="M:BorgLink.Services.Platform.BaseHttpService.PostAsync``2(System.String,``1,System.Collections.Generic.List{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Http POST
+            </summary>
+            <param name="uri">The extension</param>
+            <param name="model">The request param</param>
+            <typeparam name="T1">Response type</typeparam>
+            <typeparam name="T2">Request param</typeparam>
+            <param name="additionalHeaders">Additional headers to set in request</param>
+            <returns>T1</returns>
+        </member>
+        <member name="M:BorgLink.Services.Platform.BaseHttpService.PutAsync``2(System.String,``1,System.Collections.Generic.List{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Http PUT
+            </summary>
+            <param name="uri">The extension</param>
+            <param name="model">The request param</param>
+            <typeparam name="T1">Response type</typeparam>
+            <typeparam name="T2">Request param</typeparam>
+            <param name="additionalHeaders">Additional headers to set in request</param>
+            <returns>T1</returns>
+        </member>
+        <member name="M:BorgLink.Services.Platform.BaseHttpService.PatchAsync``2(System.String,``1,System.Collections.Generic.List{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Http PATCH
+            </summary>
+            <param name="uri">The extension</param>
+            <param name="model">The request param</param>
+            <typeparam name="T1">Response type</typeparam>
+            <typeparam name="T2">Request param</typeparam>
+            <param name="additionalHeaders">Additional headers to set in request</param>
+            <returns>T1</returns>
+        </member>
+        <member name="M:BorgLink.Services.Platform.BaseHttpService.DeleteAsync``1(System.String,System.Collections.Generic.List{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Http DELETE
+            </summary>
+            <param name="uri">The extension</param>
+            <typeparam name="T">Response type</typeparam>
+            <param name="additionalHeaders">Additional headers to set in request</param>
+            <returns>T</returns>
+        </member>
+        <member name="M:BorgLink.Services.Platform.BaseHttpService.AddHeaders(System.Collections.Generic.List{System.Collections.Generic.KeyValuePair{System.String,System.String}})">
+            <summary>
+            Add headers to a request
+            </summary>
+            <param name="additionalHeaders"></param>
+        </member>
+        <member name="T:BorgLink.Services.Platform.WebhookService">
+            <summary>
+            For webhook calls
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Platform.WebhookService.#ctor(System.Net.Http.HttpClient)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="client"></param>
+        </member>
+        <member name="M:BorgLink.Services.Platform.WebhookService.PropegateAsync">
+            <summary>
+            Emit webhook event
+            </summary>
+            <returns>The operations success</returns>
+        </member>
+        <member name="T:BorgLink.Services.Storage.Interfaces.IStorageService">
+            <summary>
+            To manage BLOBs
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Storage.Interfaces.IStorageService.UploadBlobAsync(System.String,System.String,BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Upload a blob to the store
+            </summary>
+            <param name="blobName">The name to save file as</param>
+            <param name="blob">The blob to store</param>
+            <param name="type">THe type of data the blob is</param>
+            <returns>The upload information</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.Interfaces.IStorageService.GetFileStream(System.String,System.String)">
+            <summary>
+            Gets a file stream
+            </summary>
+            <param name="fileName">The file name</param>
+            <param name="containerName">The container</param>
+            <returns>A file stream</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.Interfaces.IStorageService.GetContainerName(System.Nullable{BorgLink.Models.Enums.ResolutionContainer})">
+            <summary>
+            Gets container name for file type
+            </summary>
+            <param name="resolutionContainer">The size of file to store</param>
+            <returns>Container name</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.Interfaces.IStorageService.GetServiceSasUriForContainer(BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer,System.String)">
+            <summary>
+            Get SasUri
+            </summary>
+            <param name="type">The container client</param>
+            <param name="resolutionContainer">The file size</param>
+            <param name="storedPolicyName">Policy</param>
+            <returns>Uri</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.Interfaces.IStorageService.DeleteBlobAsync(System.String,BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Delete a blob from storage
+            </summary>
+            <param name="etag">The name of the file (etag)</param>
+            <param name="assetType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.Interfaces.IStorageService.UploadBlobAsync(System.IO.MemoryStream,System.String,BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Upload a blob to the store
+            </summary>
+            <param name="stream">The stream to upload</param>
+            <param name="name">The fileName to store</param>
+            <param name="type">The type of data the blob is</param>
+            <param name="resolutionContainer">The resolution folder image is being saved to (sub folder)</param>
+            <returns>The upload information</returns>
+        </member>
+        <member name="T:BorgLink.Services.Storage.StorageService">
+            <summary>
+            For communication/fileshare between borgs and Azure storage
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.#ctor(Microsoft.Extensions.Options.IOptions{BorgLink.Models.Options.StorageOptions})">
+            <summary>
+            Constructor
+            </summary>
+            <param name="storageOptions"></param>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.UploadBlobAsync(System.String,System.String,BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Upload a blob to the store
+            </summary>
+            <param name="blobName">The name to save file as</param>
+            <param name="blob">The blob to store</param>
+            <param name="type">The type of data the blob is</param>
+            <returns>THe upload information</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.GetFileStream(System.String,System.String)">
+            <summary>
+            Get a file stream from Azure storage. Careful as this returns a raw stream unmanaged
+            </summary>
+            <param name="fileName">The file to retrieve</param>
+            <param name="containerName">The container</param>
+            <returns>A file stream</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.UploadBlobAsync(System.IO.MemoryStream,System.String,BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Upload a blob to the store
+            </summary>
+            <param name="stream">The stream to upload</param>
+            <param name="etag">The file hash</param>
+            <param name="type">The type of data the blob is</param>
+            <param name="resolutionContainer">The resolution folder image is being saved to (sub folder)</param>
+            <returns>The upload information</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.DeleteBlobAsync(System.String,BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Delete a blob from storage
+            </summary>
+            <param name="etag">The name of the file (etag)</param>
+            <param name="assetType"></param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.GetServiceSasUriForContainer(BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer,System.String)">
+            <summary>
+            Get Sas uri
+            </summary>
+            <param name="type">The container client</param>
+            <param name="storedPolicyName">Policy</param>
+            <returns>Uri</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.GetSharedBlobConnectionClient(BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Gets a cloud storage client
+            </summary>
+            <returns>A cloud service client</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.GetCloudStorageClient">
+            <summary>
+            Gets a cloud storage client
+            </summary>
+            <returns>A cloud service client</returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.GetBlobConnectionClient(BorgLink.Models.Enums.AssetType,BorgLink.Models.Enums.ResolutionContainer)">
+            <summary>
+            Gets a blob storage connection
+            </summary>
+            <param name="type">The file type to upload/download</param>
+            <param name="resolutionContainer">The resolution folder image is being saved to (sub folder)</param>
+            <returns></returns>
+        </member>
+        <member name="M:BorgLink.Services.Storage.StorageService.GetContainerName(System.Nullable{BorgLink.Models.Enums.ResolutionContainer})">
+            <summary>
+            Gets container name for file type
+            </summary>
+            <param name="resolutionContainer">The size of file to store</param>
+            <returns>Container name</returns>
+        </member>
+        <member name="T:BorgLink.Services.TwitterService">
+            <summary>
+            For communication between borgs and Twitter
+            </summary>
+        </member>
+        <member name="M:BorgLink.Services.TwitterService.#ctor(Microsoft.Extensions.Options.IOptions{BorgLink.Models.Options.TwitterServiceOptions})">
+            <summary>
+            The constructor
+            </summary>
+            <param name="twitterOptions"></param>
+        </member>
+        <member name="M:BorgLink.Services.TwitterService.Post(System.String)">
+            <summary>
+            Post content
+            </summary>
+            <param name="statusMessage">The message to post</param>
+            <returns>An asyn task</returns>
+        </member>
+        <member name="T:BorgLink.Startup">
+            <summary>
+            The startup class for the web application
+            </summary>
+        </member>
+        <member name="P:BorgLink.Startup.Configuration">
+            <summary>
+            The applications configuration
+            </summary>
+        </member>
+        <member name="M:BorgLink.Startup.#ctor(Microsoft.Extensions.Configuration.IConfiguration)">
+            <summary>
+            Constructor
+            </summary>
+            <param name="configuration">The configuration for the application</param>
+        </member>
+        <member name="M:BorgLink.Startup.ConfigureServices(Microsoft.Extensions.DependencyInjection.IServiceCollection)">
+            <summary>
+            This method gets called by the runtime. Use this method to add services to the container.
+            </summary>
+            <param name="services">THe services to configure</param>
+        </member>
+        <member name="M:BorgLink.Startup.Configure(Microsoft.AspNetCore.Builder.IApplicationBuilder,Microsoft.AspNetCore.Hosting.IWebHostEnvironment)">
+            <summary>
+            This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+            </summary>
+            <param name="app">The application to configure</param>
+            <param name="env">The runtime environment</param>
+        </member>
+        <member name="T:BorgLink.Utils.AppSettingsUtility">
+            <summary>
+            For app setting related functions
+            </summary>
+        </member>
+        <member name="M:BorgLink.Utils.AppSettingsUtility.ToAzureSettings(Newtonsoft.Json.Linq.JObject,System.String@,System.Collections.Generic.List{BorgLink.Models.AzureSetting})">
+            <summary>
+            Convert app settings (JSON objects) to azure KV pairs
+            </summary>
+            <param name="obj">The object to convert</param>
+            <param name="propertyName">property name used in recurrsion</param>
+            <param name="settings">The output settings used in recursion</param>
+            <returns>KV Pair representation of app settings</returns>
+        </member>
+        <member name="M:BorgLink.Utils.AppSettingsUtility.RemovePreviousProperty(System.String)">
+            <summary>
+            Removes the previous property (value before :)
+            </summary>
+            <param name="propertyName">The current property name</param>
+            <returns>A property string with the previous one removed</returns>
+        </member>
+        <member name="T:BorgLink.Utils.FileUtility">
+            <summary>
+            For file related functions
+            </summary>
+        </member>
+        <member name="M:BorgLink.Utils.FileUtility.GenerateAzureAppSettings(System.String)">
+            <summary>
+            Generates Azure app settings from KV Pairs
+            </summary>
+            <param name="fileName">Config to create KV Pairs from</param>
+            <returns>KV Pairs config</returns>
+        </member>
+        <member name="M:BorgLink.Utils.FileUtility.ValidateExtension(System.String[],Microsoft.AspNetCore.Http.IFormFile)">
+            <summary>
+            Validate extension
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:BorgLink.Utils.FrequencyUtility">
+            <summary>
+            For frequency related functions
+            </summary>
+        </member>
+        <member name="M:BorgLink.Utils.FrequencyUtility.ParseFrequency(System.String,BorgLink.Models.Enums.TimeUnit)">
+            <summary>
+            Parses frequency string ie. 1s -> 1000, 1m -> 60000, 1h -> 3600000.. if conversion is set to milliseconds
+            </summary>
+            <param name="frequency">The frequency to parse</param>
+            <param name="returnFormat">What to return the time period in</param>
+            <returns>Frequency</returns>
+        </member>
+        <member name="M:BorgLink.Utils.FrequencyUtility.ParseFrequencyConfig(System.String,BorgLink.Models.Enums.TimeUnit)">
+            <summary>
+            Parses frequency string ie. 1s -> 1000, 1m -> 60000, 1h -> 3600000.. if conversion is set to milliseconds
+            </summary>
+            <param name="frequency"></param>
+            <param name="returnFormat"></param>
+            <returns>Frequency</returns>
+        </member>
+        <member name="M:BorgLink.Utils.FrequencyUtility.ConvertSecondsTo(BorgLink.Models.Enums.TimeUnit,System.Int64)">
+            <summary>
+            Convert seconds to another format
+            </summary>
+            <param name="period"></param>
+            <param name="seconds"></param>
+            <returns></returns>
+        </member>
+        <member name="T:BorgLink.Utils.ImageUtils">
+            <summary>
+            For image related functions
+            </summary>
+        </member>
+        <member name="M:BorgLink.Utils.ImageUtils.ConvertBorgToBitmap(System.Collections.Generic.List{System.String})">
+            <summary>
+            This is used to convert an array of hex pixals back into an argb image
+            </summary>
+            <param name="hexValues">The string hex values to convert to image (flat)</param>
+            <returns>A 2d bitmap</returns>
+        </member>
+        <member name="T:BorgLink.Utils.ReflectionUtility">
+            <summary>
+            For reflection related logic
+            </summary>
+        </member>
+        <member name="M:BorgLink.Utils.ReflectionUtility.GetPropertyValue(System.Object,System.String)">
+            <summary>
+            Gets an object value by property name
+            </summary>
+            <param name="obj">The object to get the property value from</param>
+            <param name="propName">The property name of the value we want to get</param>
+            <returns>The property value for a specified name</returns>
+            <author>Matt Sharp</author>
+            <date>17 February 2020</date>
+        </member>
+        <member name="M:BorgLink.Utils.ReflectionUtility.GetPropertyValue``1(System.Object,System.String)">
+            <summary>
+            Gets an object value by property name
+            </summary>
+            <param name="obj">The object to get the property value from</param>
+            <param name="propName">The property name of the value we want to get</param>
+            <returns>The property value for a specified name</returns>
+            <author>Matt Sharp</author>
+            <date>17 February 2020</date>
+        </member>
+    </members>
+</doc>
