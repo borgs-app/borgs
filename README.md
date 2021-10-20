@@ -24,7 +24,7 @@ The source code for this can be found within.
 
 ## Life cycle
 
-The contract uses layers built up of layer items (also known as attributes). The layer items are made up from colours-positions. The contract will have no layers/items upon creation and require them to be added. For this it may be useful to refer to the BorgImageReader project contained within. 
+The contract uses layers built up of layer items (also known as attributes). The layer items are made up from colors-positions. The contract will have no layers/items upon creation and require them to be added. For this it may be useful to refer to the BorgImageReader project contained within. 
 
 The setup flow has been outlined in the diagram below:
 
@@ -32,19 +32,23 @@ The setup flow has been outlined in the diagram below:
 
 The above example shows the creation of:
 
-### 1 layer
+- 1 layer
+- 1 layer item
+- 2 colors for layer item
+
+### Add Layer
 
 ```solidity
 function addLayer(string memory layerName) external onlyOwner editable
 ```
 
-### 1 layer item
+### Add Layer Item (attribute)
 
 ```solidity
 function addLayerItem(string memory layerName, uint256 chance, string memory borgAttributeName) external onlyOwner editable
 ```
 
-### 2 colours for the layer item
+### Add Color to Layer Item
 
 ```solidity
 function addColorToBorgAttribute(string memory borgAttributeName, string memory color, uint256[] memory positions) external onlyOwner editable
@@ -52,7 +56,7 @@ function addColorToBorgAttribute(string memory borgAttributeName, string memory 
 
 Borgs have 10 layers and a range of between 4-20 layer items per layer, this being said it is no limit! It is also important to note that the contract requires locking for edit before a user can interact with the contract.
 
-### Locking for edit
+### Locking for Edit
 
 ```solidity
 function lock() external onlyOwner
@@ -62,7 +66,21 @@ Once the contract has been setup and locked for edit (which can not be undone on
 
 ![Generate Borg](https://user-images.githubusercontent.com/7746153/138068936-d2048fa7-d88c-4826-82fa-3daef6f02c5b.png)
 
+### Generate Borg
 
+```solidity
+function generateBorg() external payable usable returns(uint256)
+```
+
+Once more than 1 borg has been generated it is then possible to breed the borgs (as long as both are owned by the persion trying to breed)
+
+![Breed Borg](https://user-images.githubusercontent.com/7746153/138069714-4a6266fc-aeb7-49d7-a551-a43323d64af9.png)
+
+## Breed Borgs
+
+```solidity
+function breedBorgs(uint256 borgId1, uint256 borgId2) external usable returns(uint256)
+```
 
 
 
