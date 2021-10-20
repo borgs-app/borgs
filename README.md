@@ -76,11 +76,17 @@ Once more than 1 borg has been generated it is then possible to breed the borgs 
 
 ![Breed Borg](https://user-images.githubusercontent.com/7746153/138069714-4a6266fc-aeb7-49d7-a551-a43323d64af9.png)
 
-## Breed Borgs
+### Breed Borgs
 
 ```solidity
 function breedBorgs(uint256 borgId1, uint256 borgId2) external usable returns(uint256)
 ```
+
+### Sales
+
+The Borgs can also be sold/purchased via this same contract. If you provide the create listing call with a 0x address then it is possible for anyone to buy it (public sale) but if the address is any address other than this, then only this address can purchase the listing (private sale), the worksflow for this has been provided below.
+
+![Private Sale](https://user-images.githubusercontent.com/7746153/138070382-08d078dc-1aa3-481f-a812-99bb48571625.png)
 
 
 
