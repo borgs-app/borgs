@@ -1452,17 +1452,19 @@ contract Borgs is ERC721Enumerable, ERC721Holder, CommonObjects, NumberUtils{
         return _ownersTotalListings[owner];
     }
     
-    function addLayer(string memory layerName) external onlyOwner editable{
-        // Get/create layer
-        Layer storage layer = _layers[layerName];
-        
-        // Update props
-        layer.name = layerName;
-        layer.exists = true;
-       
-        // Add meta data about the layer
-        LayerMetaData memory metaData = LayerMetaData(layerName);
-        _layerMetaData.push(metaData);
+    function addLayers(string[] memory layerNames) external onlyOwner editable{
+        for(uint256 i=0;i<layerNames.length;i++){
+            // Get/create layer
+            Layer storage layer = _layers[layerNames[i]];
+            
+            // Update props
+            layer.name = layerNames[i];
+            layer.exists = true;
+           
+            // Add meta data about the layer
+            LayerMetaData memory metaData = LayerMetaData(layerNames[i]);
+            _layerMetaData.push(metaData);
+        }
     }
     
     function addLayerItem(string memory layerName, uint256 chance, string memory borgAttributeName) external onlyOwner editable{
