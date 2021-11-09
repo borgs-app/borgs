@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BorgLink.Utils
@@ -16,7 +17,7 @@ namespace BorgLink.Utils
         /// </summary>
         /// <param name="hexValues">The string hex values to convert to image (flat)</param>
         /// <returns>A 2d bitmap</returns>
-        public static Bitmap ConvertBorgToBitmap(List<string> hexValues)
+        public static Bitmap ConvertBorgToBitmap(List<byte[]> hexValues)
         {
             // Assuming regular image ie. 24x24, 12x12, 48x48 etc.
             var sqrt = (int)Math.Sqrt(hexValues.Count());
@@ -28,10 +29,23 @@ namespace BorgLink.Utils
                 var pixal = Color.Transparent;
 
                 // If specified then isnt white
-                if (!string.IsNullOrEmpty(hexValues[i]))
+                if (hexValues[i].Any())
                 {
-                    var convertedHexValue = Convert.ToInt32(hexValues[i], 16);
-                    pixal = Color.FromArgb(convertedHexValue);
+                    // Get a string from bytes
+                    var strValues = System.Text.Encoding.Default.GetString(hexValues[i]);
+
+                    // We dont want the null values - so take everything before
+                    strValues = strValues.Split(new[] { '\0' }, 2)?.FirstOrDefault()?.Trim();
+
+                    // If we have a string to parse, parse
+                    if (!string.IsNullOrEmpty(strValues))
+                    {
+                        // Parse and turn to int32
+                        var convertedHexValue = Convert.ToInt32(strValues, 16);
+
+                        // Create color from argb int32
+                        pixal = Color.FromArgb(convertedHexValue);
+                    }
                 }
 
                 // Define 2d coords

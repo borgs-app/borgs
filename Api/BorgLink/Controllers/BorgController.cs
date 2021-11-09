@@ -54,6 +54,26 @@ namespace BorgLink.Controllers
         }
 
         /// <summary>
+        /// Private: Test
+        /// will not duplicate inserts
+        /// </summary>
+        /// <param name="id">The borg</param>
+        /// <returns>The url of the borg</returns>
+        /*[HttpGet]
+        [Authorize(AuthenticationSchemes = BasicAuthenticationDefaults.AuthenticationScheme)]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Route("contract/{id}")]
+        public async Task<ActionResult<string>> GetBorgFromContract(int id)
+        {
+            // Save
+            var borg = await _borgService.GetContractBorgAsync(id);
+            if (borg == null)
+                return UnprocessableEntity("Borg doesn't exist");
+
+            return Ok();
+        }*/
+
+        /// <summary>
         /// Private: Used to generate/regenerate a generated borg (supply obj.Object.BorgId). This 
         /// will not duplicate inserts
         /// </summary>

@@ -200,8 +200,8 @@ namespace BorgLink.Ethereum
         /// <summary>
         /// The borg image
         /// </summary>
-        [Parameter("string[]", "image", 2)]
-        public List<string> Image { get; set; }
+        [Parameter("bytes8[]", "image", 2)]
+        public List<byte[]> Image { get; set; }
 
         /// <summary>
         /// The attributes which make up the image

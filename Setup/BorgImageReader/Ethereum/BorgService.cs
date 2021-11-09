@@ -1,4 +1,5 @@
-﻿using Nethereum.Hex.HexTypes;
+﻿using BorgImageReader.Models;
+using Nethereum.Hex.HexTypes;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using System;
@@ -64,19 +65,19 @@ namespace BorgImageReader.Ethereum
         /// </summary>
         /// <param name="layerName">The layer to add</param>
         /// <returns>The transaction</returns>
-        public async Task<string> AddLayerAsync(string layerName)
+        public async Task<string> AddLayersAsync(int count)
         {
             // Get connection
             var contract = GetStandardTokenService().GetWeb3().Eth.GetContract(_abiCode, _contractAddress);
 
             // Get function
-            var addLayer = contract.GetFunction("addLayer");
+            var addLayer = contract.GetFunction("setLayers");
 
             // Estimate gas
-            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, layerName);
+            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, count);
 
             // Send transaction
-            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, layerName);
+            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, count);
 
             // Return transaction hash
             return hex;
@@ -89,19 +90,19 @@ namespace BorgImageReader.Ethereum
         /// <param name="chance">The chance for the item to be selected</param>
         /// <param name="borgAttributeName">The name (unique) for the layer item/attribute</param>
         /// <returns>The transaction hash</returns>
-        public async Task<string> AddLayerItemAsync(string layerName, BigInteger chance, string borgAttributeName)
+        public async Task<string> AddLayerItemsAsync(List<CreateLayerItem> items)
         {
             // Get connection
             var contract = GetStandardTokenService().GetWeb3().Eth.GetContract(_abiCode, _contractAddress);
 
             // Get function
-            var addLayer = contract.GetFunction("addLayerItem");
+            var addLayer = contract.GetFunction("addLayerItems");
 
             // Estimate gas
-            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, layerName, chance, borgAttributeName);
+            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, items);
 
             // Send transaction
-            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, layerName, chance, borgAttributeName);
+            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, items);
 
             // Return transaction hash
             return hex;
@@ -111,22 +112,47 @@ namespace BorgImageReader.Ethereum
         /// Add a new colour (and positions) for an attribute
         /// </summary>
         /// <param name="borgAttributeName">The attribute to add colour for</param>
-        /// <param name="hexColour">The colour to add (in hex)</param>
+        /// <param name="hexColours">The colour to add (in hex)</param>
         /// <param name="positions">The positions to add (linear array positions)</param>
         /// <returns>The transaction</returns>
-        public async Task<string> AddBorgAttributeColorAsync(string borgAttributeName, string hexColour, BigInteger[] positions)
+        public async Task<string> CreateBorgAttribute(string borgAttributeName, byte[][] hexColours, BigInteger[][] positions)
         {
             // Get connection
             var contract = GetStandardTokenService().GetWeb3().Eth.GetContract(_abiCode, _contractAddress);
 
             // Get function
-            var addLayer = contract.GetFunction("addColorToBorgAttribute");
+            var addLayer = contract.GetFunction("createBorgAttribute");
 
             // Estimate gas
-            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, borgAttributeName, hexColour, positions);
+            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, borgAttributeName, hexColours, positions);
 
             // Send transaction
-            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, borgAttributeName, hexColour, positions);
+            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, borgAttributeName, hexColours, positions);
+
+            // Return transaction hash
+            return hex;
+        }
+
+        /// <summary>
+        /// Add a new colour (and positions) for an attribute
+        /// </summary>
+        /// <param name="borgAttributeName">The attribute to add colour for</param>
+        /// <param name="hexColours">The colour to add (in hex)</param>
+        /// <param name="positions">The positions to add (linear array positions)</param>
+        /// <returns>The transaction</returns>
+        public async Task<string> AddBlanksAsync(List<string> blankNames)
+        {
+            // Get connection
+            var contract = GetStandardTokenService().GetWeb3().Eth.GetContract(_abiCode, _contractAddress);
+
+            // Get function
+            var addLayer = contract.GetFunction("addBlankToLayers");
+
+            // Estimate gas
+            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, blankNames);
+
+            // Send transaction
+            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, blankNames);
 
             // Return transaction hash
             return hex;
@@ -139,7 +165,7 @@ namespace BorgImageReader.Ethereum
         /// <param name="count">The current retry count</param>
         /// <param name="maxCount">Max number of times to try for</param>
         /// <returns></returns>
-        public async Task<bool> WaitForTransaction(string txHash, int count = 0, int maxCount = 2, int delayTimeInMillis = 10000)
+        public async Task<bool> WaitForTransactionAsync(string txHash, int count = 0, int maxCount = 2, int delayTimeInMillis = 10000)
         {
             // Get connection
             var client = GetStandardTokenService().GetWeb3();
@@ -154,7 +180,7 @@ namespace BorgImageReader.Ethereum
                 await Task.Delay(delayTimeInMillis);
 
                 // Try again
-                return await WaitForTransaction(txHash, count++);
+                return await WaitForTransactionAsync(txHash, count++);
             }
 
             // If we have reached max retry count or the tranaction has been confirmed then we can return
@@ -200,7 +226,7 @@ namespace BorgImageReader.Ethereum
                 var hex = await generateBorg.SendTransactionAsync(_adminAddress, new HexBigInteger(gas), new HexBigInteger(3000000000), new HexBigInteger(100000000000000000));
 
                 // Wait for completion
-                await WaitForTransaction(hex);
+                await WaitForTransactionAsync(hex);
 
                 // Add the transaction hash to completed transaction list
                 transactions.Add(hex);
@@ -238,7 +264,7 @@ namespace BorgImageReader.Ethereum
                     var hex = await generateBorg.SendTransactionAsync(_adminAddress, new HexBigInteger(gas), new HexBigInteger(3000000000), new HexBigInteger(0), 2, 3);
 
                     // Wait for completion
-                    await WaitForTransaction(hex);
+                    await WaitForTransactionAsync(hex);
 
                     // Add transaction to completed transactions
                     transactions.Add(hex);

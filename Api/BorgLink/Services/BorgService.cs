@@ -12,6 +12,7 @@ using BorgLink.Utils;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -303,6 +304,24 @@ namespace BorgLink.Services
             return await _borgRepository.EnsureSaveChangesAsync();
         }
 
+        public async Task<Bitmap> GetContractBorgAsync(int borgId)
+        {
+            // Get a borgs image
+            var blockChainBorg = await _borgTokenService.GetBorgAsync(borgId);
+
+            // Check that there is something to upload
+            if (blockChainBorg?.Attributes?.All(x => string.IsNullOrEmpty(x)) ?? true)
+                return null;
+
+            // Convert to bitmap
+            var borgImage = ImageUtils.ConvertBorgToBitmap(blockChainBorg.Image);
+
+            // Resize
+            borgImage = ImageUtils.ResizeBitmap(borgImage, 24, 24);
+
+            return borgImage;
+        }
+
         /// <summary>
         /// Imports a borg from the blockchain and uploads to storage
         /// </summary>
@@ -337,7 +356,7 @@ namespace BorgLink.Services
             return borg;
         }
 
-        private async Task UploadBorgToStorage(int borgId, List<string> image, ResolutionContainer resolutionContainer, int width, int height)
+        private async Task UploadBorgToStorage(int borgId, List<byte[]> image, ResolutionContainer resolutionContainer, int width, int height)
         {
             // Convert to bitmap
             var borgImage = ImageUtils.ConvertBorgToBitmap(image);

@@ -30,7 +30,9 @@ namespace BorgImageReader
             foreach (var folder in folders)
             {
                 // Get the files/images to turn to historgrams
-                var files = Directory.GetFiles(folder);
+                var files = Directory.GetFiles(folder)
+                    .Where(x => !x.Contains("DS_Store"))
+                    .ToList();
 
                 // Add the layer
                 layers.Add(new Layer() { Position = position++, LayerItems = BuildLayerItems(files.ToList()) });
@@ -59,7 +61,7 @@ namespace BorgImageReader
                 var bitmap = new Bitmap(file);
 
                 // Define histogram
-                var histogram = new Histogram();
+                var histogram = new LayersPositions();
 
                 // Process the image
                 for (int i = 0; i < bitmap.Size.Height; i++)
@@ -93,7 +95,7 @@ namespace BorgImageReader
                 var name = ParseName(Path.GetFileName(file));
 
                 // Once the image has been processed we can add the image (as a histogram) to the collection of layer items
-                layersItems.Add(new LayerItem() { Name = name, Chance = chance, Histogram = histogram });
+                layersItems.Add(new LayerItem() { Name = name, Chance = chance, LayerPositions = histogram });
             }
 
             // Return the items

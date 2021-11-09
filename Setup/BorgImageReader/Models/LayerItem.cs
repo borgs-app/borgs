@@ -8,6 +8,6 @@ namespace BorgImageReader
     {
         public string Name { get; set; }
         public decimal Chance { get; set; }
-        public Histogram Histogram { get; set; }
+        public LayersPositions LayerPositions { get; set; }
     }
 }

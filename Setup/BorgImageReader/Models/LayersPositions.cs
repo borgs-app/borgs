@@ -6,12 +6,12 @@ using System.Text;
 
 namespace BorgImageReader
 {
-    public class Histogram
+    public class LayersPositions
     {
         public Dictionary<string, List<BigInteger>> Data { get; set; }
         public List<KeyValuePair<string, string>> FormattedData => Format();
 
-        public Histogram()
+        public LayersPositions()
         {
             Data = new Dictionary<string, List<BigInteger>>();
         }

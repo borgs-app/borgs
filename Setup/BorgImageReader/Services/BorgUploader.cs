@@ -1,4 +1,6 @@
 ﻿using BorgImageReader.Ethereum;
+using BorgImageReader.Models;
+using Nethereum.Hex.HexConvertors.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -61,10 +63,13 @@ namespace BorgImageReader
             var layers = BorgHelpers.ReadLayers("Images");
 
             // Add layers
-            await AddLayersAsync(layers);
+            await AddLayersAsync(layers.Count());
+
+            // Add all the blank layers in 1 fell swoop
+            await AddBlanks(layers);
 
             // Add colours
-            await AddBorgColoursAsync(layers);
+            await AddBorgAttributes(layers);
 
             // Add the items to the layers
             await AddLayerItemsAsync(layers);
@@ -77,19 +82,13 @@ namespace BorgImageReader
         /// </summary>
         /// <param name="layers"></param>
         /// <returns></returns>
-        public async Task AddLayersAsync(List<Layer> layers)
+        public async Task AddLayersAsync(int layerCount)
         {
-            for (int i = 0; i < layers.Count(); i++)
-            {
-                // Get layer
-                var layer = layers[i];
+            // Add layer
+            var layerTransaction = await _borgService.AddLayersAsync(layerCount);
 
-                // Add layer
-                var layerTransaction = await _borgService.AddLayerAsync($"Layer_{i}");
-
-                // Wait for transaction
-                await _borgService.WaitForTransaction(layerTransaction);
-            }
+            // Wait for transaction
+            await _borgService.WaitForTransactionAsync(layerTransaction);
         }
 
         /// <summary>
@@ -97,7 +96,7 @@ namespace BorgImageReader
         /// </summary>
         /// <param name="layers"></param>
         /// <returns></returns>
-        public async Task AddBorgColoursAsync(List<Layer> layers)
+        public async Task AddBorgAttributes(List<Layer> layers)
         {
             // Add all of the layers colours
             for (int i = 0; i < layers.Count(); i++)
@@ -107,16 +106,55 @@ namespace BorgImageReader
 
                 foreach (var layerItem in layer.LayerItems)
                 {
-                    foreach (var borgColor in layerItem.Histogram.Data)
+                    // Dont add blanks as they are already added in 1 fell swoop with another action
+                    if (!layerItem.Name.Contains("blank"))
                     {
+                        // Get colors
+                        var colors = layerItem.LayerPositions.Data.Select(x => x.Key)
+                            //.ToArray()
+                            .Select(y => string.Join(string.Empty, y.Select(c => ((int)c).ToString("X2"))).HexToByteArray()).ToArray();
+
+                        // Get positions
+                        var positions = layerItem.LayerPositions.Data.Values.Select(x => x.ToArray()).ToArray();
+
                         // Add the colour/positions for the attribute
-                        var borgAttributeTransaction = await _borgService.AddBorgAttributeColorAsync(layerItem.Name, borgColor.Key, borgColor.Value.ToArray());
+                        var borgAttributeTransaction = await _borgService.CreateBorgAttribute(
+                            layerItem.Name,
+                            colors,
+                            positions
+                        );
 
                         // Wait for transaction
-                        await _borgService.WaitForTransaction(borgAttributeTransaction);
+                        await _borgService.WaitForTransactionAsync(borgAttributeTransaction);
+                    }
+                    else
+                    {
+                        var s = "";
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Add black attributes
+        /// </summary>
+        /// <param name="layers"></param>
+        /// <returns></returns>
+        public async Task AddBlanks(List<Layer> layers)
+        {
+            // We dont want to add blanks for layer 0 (the main borg part)
+            var layersToUse = layers.Where((x, y) => y > 0);
+
+            // Get the blank names
+            var blankAttributeNames = layers.Select((x, y) => $"blank{y}").ToList();
+
+            // Add blank for each layer but the first
+            var transaction = await _borgService.AddBlanksAsync(blankAttributeNames);
+
+            // Wait for transaction
+            await _borgService.WaitForTransactionAsync(transaction);
+
+            return;
         }
 
         /// <summary>
@@ -126,20 +164,33 @@ namespace BorgImageReader
         /// <returns></returns>
         public async Task AddLayerItemsAsync(List<Layer> layers)
         {
-            for (int i = 0; i < layers.Count(); i++)
+            // Define layer items
+            List<CreateLayerItem> allLayerItems = new List<CreateLayerItem>();
+
+            // For the layer name
+            var layerCounter = 0;
+
+            // Add to layer items
+            foreach (var layer in layers)
             {
-                // Get layer
-                var layer = layers[i];
+                // Convert to out new format
+                var layersItems = layer.LayerItems.Select(x => new CreateLayerItem() 
+                    {
+                       Chance = new BigInteger(x.Chance),
+                       LayerIndex = layerCounter,
+                       AttributeName = x.Name,
+                }).ToList();
 
-                foreach (var layerItem in layer.LayerItems)
-                {
-                    // Add the items to each layer
-                    var layerItemTransaction = await _borgService.AddLayerItemAsync($"Layer_{i}", (int)layerItem.Chance, layerItem.Name);
+                allLayerItems.AddRange(layersItems);
 
-                    // Wait for transaction
-                    await _borgService.WaitForTransaction(layerItemTransaction);
-                }
+                layerCounter++;
             }
+
+            // Add the items to each layer
+            var layerItemTransaction = await _borgService.AddLayerItemsAsync(allLayerItems);
+
+            // Wait for transaction
+            await _borgService.WaitForTransactionAsync(layerItemTransaction);
         }
     }
 }
