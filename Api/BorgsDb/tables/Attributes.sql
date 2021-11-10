@@ -1,6 +1,7 @@
 ﻿CREATE TABLE [dbo].[Attributes]
 (
 	[Id] INT NOT NULL PRIMARY KEY IDENTITY(1,1),
+    [LayerNumber] INT NOT NULL DEFAULT(0),
 	[Name] NVARCHAR(1000) NOT NULL,
     [DateAdded] DATETIME NOT NULL DEFAULT GETDATE()
 )

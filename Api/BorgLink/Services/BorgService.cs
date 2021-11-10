@@ -132,9 +132,6 @@ namespace BorgLink.Services
                     // Save
                     var savedBorg = await SaveBorgInDatabaseAsync(importedBorg);
 
-                    // Try to add attributes
-                    await TryAddAttributesAsync(importedBorg.Attributes);
-
                     // Link attributes
                     await AddBorgAttributesAsync(importedBorg.BorgId, importedBorg.Attributes);
 
@@ -154,28 +151,6 @@ namespace BorgLink.Services
         }
 
         /// <summary>
-        /// Try to add attributes to db if they havent already been added
-        /// </summary>
-        /// <param name="attributes">The attributes to add</param>
-        /// <returns>The added attributes (if any)</returns>
-        public async Task<List<Models.Attribute>> TryAddAttributesAsync(List<string> attributes)
-        {
-            // Get matching attributes from db
-            var dbAttributes = _attributeRepository.GetAll()
-                .Where(x => attributes.Contains(x.Name))
-                .ToList();
-
-            // Find the difference
-            var missingAttributes = attributes.Where(a => dbAttributes.All(a2 => a2.Name != a))
-                .ToList();
-            if (missingAttributes.Any())
-                dbAttributes.AddRange(await SaveAttributesInDatabaseAsync(missingAttributes));
-
-            // If we got here with no errors, then true
-            return dbAttributes;
-        }
-
-        /// <summary>
         /// Link attributes to a borg
         /// </summary>
         /// <param name="borgId">The borg to add attributes to</param>
@@ -189,7 +164,9 @@ namespace BorgLink.Services
                 .ToList();
 
             // Add attributes to borg
-            await SaveBorgAttributesInDatabaseAsync(borgId, dbAttributes.Select(x => x.Id).ToList());
+            await SaveBorgAttributesInDatabaseAsync(borgId, dbAttributes.OrderBy(x => x.LayerNumber)
+                .Select(x => x.Id)
+                .ToList());
 
             // If we got here with no errors, then true
             return true;
@@ -228,30 +205,6 @@ namespace BorgLink.Services
         }
 
         /// <summary>
-        /// Save attributes in the database
-        /// </summary>
-        /// <param name="attributes">The attributes to save</param>
-        /// <returns>The saved full attributes</returns>
-        private async Task<List<Models.Attribute>> SaveAttributesInDatabaseAsync(List<string> attributes)
-        {
-            // Define inserts
-            var attributesToAdd = new List<Models.Attribute>();
-
-            // Build attributes
-            foreach (var attribute in attributes)
-            {
-                attributesToAdd.Add(new Models.Attribute() { Name = attribute });
-            }
-
-            // Insert
-            _attributeRepository.AddRange(attributesToAdd);
-            if (await _attributeRepository.EnsureSaveChangesAsync())
-                return attributesToAdd;
-
-            return null;
-        }
-
-        /// <summary>
         /// Saves a link between the attributes and a borg in the database
         /// </summary>
         /// <param name="borgId">The borg to save attributes for</param>
@@ -261,10 +214,10 @@ namespace BorgLink.Services
         {
             // Link to borg now
             var attributeLinks = new List<BorgAttribute>();
-            foreach (var attributeId in attributeIds)
+            for (var i = 0; i< attributeIds.Count();i++)
             {
                 // Create link
-                attributeLinks.Add(new BorgAttribute() { AttributeId = attributeId, BorgId = borgId });
+                attributeLinks.Add(new BorgAttribute() { AttributeId = attributeIds[i], BorgId = borgId });
             }
 
             // Insert
@@ -304,7 +257,7 @@ namespace BorgLink.Services
             return await _borgRepository.EnsureSaveChangesAsync();
         }
 
-        public async Task<Bitmap> GetContractBorgAsync(int borgId)
+        public async Task<GetBorgOutputDTO> GetContractBorgAsync(int borgId)
         {
             // Get a borgs image
             var blockChainBorg = await _borgTokenService.GetBorgAsync(borgId);
@@ -319,7 +272,7 @@ namespace BorgLink.Services
             // Resize
             borgImage = ImageUtils.ResizeBitmap(borgImage, 24, 24);
 
-            return borgImage;
+            return blockChainBorg;
         }
 
         /// <summary>

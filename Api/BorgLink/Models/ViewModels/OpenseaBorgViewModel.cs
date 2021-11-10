@@ -39,6 +39,6 @@ namespace BorgLink.Models.ViewModels
         /// What makes up a borg
         /// </summary>
         [JsonProperty("attributes")]
-        public List<string> Attributes { get; set; }
+        public List<OpenSeaAttributeViewModel> Attributes { get; set; }
     }
 }

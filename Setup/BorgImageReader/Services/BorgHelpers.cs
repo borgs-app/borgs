@@ -26,6 +26,8 @@ namespace BorgImageReader
             // Define position
             var position = 0;
 
+            var sb = new StringBuilder();
+
             // For each directory (acting as a layer) we read its files/images into layer items
             foreach (var folder in folders)
             {
@@ -34,11 +36,22 @@ namespace BorgImageReader
                     .Where(x => !x.Contains("DS_Store"))
                     .ToList();
 
+                // Create items
+                var layerItems = BuildLayerItems(files.ToList());
+
+                // Build insert script
+                foreach (var layerItem in layerItems)
+                {
+                    sb.AppendLine($"INSERT INTO dbo.Attributes (Name, LayerNumber) VALUES ('{layerItem.Name}',{position})");
+                }
+
                 // Add the layer
-                layers.Add(new Layer() { Position = position++, LayerItems = BuildLayerItems(files.ToList()) });
+                layers.Add(new Layer() { Position = position, LayerItems = layerItems });
 
                 position++;
             }
+
+            var insertStatement = sb.ToString();
 
             // Return the built layers
             return layers;

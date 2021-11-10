@@ -33,11 +33,12 @@ namespace BorgLink.Mapping.Converters
             destination.Name = source.Name;
             destination.Image = string.Format(source.Url, ResolutionContainer.Large.ToString().ToLower());
             destination.Attributes = source?.BorgAttributes?
-                .Where(x => !x?.Attribute?.Name?.Contains("blank") ?? false)
-                .Select(x => x?.Attribute?.Name)?
+                .Where(x => x.Attribute != null)
+                .Where(x => (!x.Attribute.Name?.Contains("blank") ?? false))
+                .Select(x => new OpenSeaAttributeViewModel(){ TraitType = $"Layer {x.Attribute.LayerNumber}", Value = x.Attribute.Name })
                 .ToList();
-            destination.Description = "This is a borg";
-            destination.External_url = "https://borgs.app/";
+            destination.Description = "Cyborgs DAO is made of ~20k androgynous cyborgs that spawn, breed & die on-chain. All borg artwork is stored in the token (no IPFS) and borgs are randomly generated directly on-chain when spawned.";
+            destination.External_url = $"https://borgs.app/borgs/{source.BorgId}";
 
             // Returned the mapping
             return destination;

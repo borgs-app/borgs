@@ -78,6 +78,13 @@ namespace BorgLink.Services
             // The time to wait between syncs
             var time = _options.IntervalFrequency.ParseFrequencyConfig();
 
+            // Check is enabled
+            if (!_options.Enabled)
+            {
+                await Task.Delay((int)time);
+                return;
+            }
+
             try
             {
                 // Calculate how long sleep for

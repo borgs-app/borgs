@@ -21,6 +21,11 @@ namespace BorgLink.Models
         public string Name { get; set; }
 
         /// <summary>
+        /// Which layer the attribute is
+        /// </summary>
+        public int LayerNumber { get; set; }
+
+        /// <summary>
         /// The owning borgs
         /// </summary>
         public List<BorgAttribute> BorgAttributes { get; set; }

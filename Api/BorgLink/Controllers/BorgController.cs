@@ -65,12 +65,15 @@ namespace BorgLink.Controllers
         [Route("contract/{id}")]
         public async Task<ActionResult<string>> GetBorgFromContract(int id)
         {
+            var attributes = (await _borgService.GetContractBorgAsync(id))?.Attributes;
+            await _borgService.AddBorgAttributesAsync(id, attributes);
+
             // Save
             var borg = await _borgService.GetContractBorgAsync(id);
             if (borg == null)
                 return UnprocessableEntity("Borg doesn't exist");
 
-            return Ok();
+            return Ok(borg);
         }*/
 
         /// <summary>
@@ -213,7 +216,7 @@ namespace BorgLink.Controllers
         /// <returns>Borgs</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
-        [Route("~/borg/{id}/opensea")]
+        [Route("~/opensea/borg/{id}")]
         public async Task<ActionResult<OpenseaBorgViewModel>> GetOpenseaBorgByIdAsync(int id)
         {
             // Try to get image from cache, if not then get new one from storage
