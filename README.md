@@ -40,11 +40,15 @@ The setup flow has been outlined in the diagram below:
 
 ### Set Layers
 
+The setup of the different layers
+
 ```solidity
 function addLayer(string memory layerName) external onlyOwner editable
 ```
 
 Example: 12
+
+Adds all blank attributes in 1 fell swoop
 
 ### Add Blanks
 
@@ -56,6 +60,8 @@ Example: ["blank1", "blank2", ..]
 
 ### Create Borg Attributes
 
+Creates a borg attributre which can later be linked to a layer. The attribute is made up of colors and positions of those colors.
+
 ```solidity
 function createBorgAttribute(string borgAttributeName, byte[][] hexColours, uint256[][] positions) external onlyOwner editable
 ```
@@ -63,6 +69,8 @@ function createBorgAttribute(string borgAttributeName, byte[][] hexColours, uint
 Example: "face_blue", [0][70,70,48,48,48,48,48,48], [0][30,36,38..]
 
 ### Add Attributes To Layers
+
+Finally link up the attributes to layers (and define their chances). 
 
 ```solidity
 function addLayerItems(CreateLayerItems[] layerItems) external onlyOwner editable
@@ -210,28 +218,4 @@ public static BufferedImage convertBorgToBufferedImage(String[] hexValues)
 ```
 
 ## 
-
-## Life cycle - Shop
-
-### Sales
-
-The Borgs can also be sold/purchased via this same contract. If you provide the create listing call with a 0x address then it is possible for anyone to buy it (public sale) but if the address is any address other than this, then only this address can purchase the listing (private sale), the worksflow for this has been provided below. There is a fee of 3% hard coded into the contract as commission (immutable), this however only gets deducted after the sale has been made meaning that you can cancel the sale with no fees required.
-
-![Private Sale](https://user-images.githubusercontent.com/7746153/138070382-08d078dc-1aa3-481f-a812-99bb48571625.png)
-
-```solidity
-function addListing(uint256 tokenId, uint256 price, address buyer) public
-```
-
-```solidity
-function purchaseListing(uint256 tokenId) public payable
-```
-
-There is also a way to remove a listing if the seller is getting cold feet (this can however only be performed by the seller themselves).
-
-![Remove Listing](https://user-images.githubusercontent.com/7746153/138070896-60b1a273-877b-426a-a5d7-c4d655f823b4.png)
-
-```solidity
-function removeListing(uint256 tokenId) public
-```
 
