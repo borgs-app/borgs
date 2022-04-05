@@ -30,7 +30,7 @@ Production Borgs | Polygon Mainnet | 0xa88e5cfa0257460490ce54052b4faee1b3d7f410 
 
 The source code for this can be found within.
 
-## Life cycle
+## Life cycle - Borgs
 
 The contract uses layers built up of layer items (also known as attributes). The layer items are made up from colors-positions. The contract will have no layers/items upon creation and require them to be added. For this it may be useful to refer to the BorgImageReader project contained within. 
 
@@ -88,28 +88,6 @@ Once more than 1 borg has been generated it is then possible to breed the borgs 
 
 ```solidity
 function breedBorgs(uint256 borgId1, uint256 borgId2) external usable returns(uint256)
-```
-
-### Sales
-
-The Borgs can also be sold/purchased via this same contract. If you provide the create listing call with a 0x address then it is possible for anyone to buy it (public sale) but if the address is any address other than this, then only this address can purchase the listing (private sale), the worksflow for this has been provided below. There is a fee of 3% hard coded into the contract as commission (immutable), this however only gets deducted after the sale has been made meaning that you can cancel the sale with no fees required.
-
-![Private Sale](https://user-images.githubusercontent.com/7746153/138070382-08d078dc-1aa3-481f-a812-99bb48571625.png)
-
-```solidity
-function addListing(uint256 tokenId, uint256 price, address buyer) public
-```
-
-```solidity
-function purchaseListing(uint256 tokenId) public payable
-```
-
-There is also a way to remove a listing if the seller is getting cold feet (this can however only be performed by the seller themselves).
-
-![Remove Listing](https://user-images.githubusercontent.com/7746153/138070896-60b1a273-877b-426a-a5d7-c4d655f823b4.png)
-
-```solidity
-function removeListing(uint256 tokenId) public
 ```
 
 ### Getting a Borg
@@ -224,4 +202,28 @@ public static BufferedImage convertBorgToBufferedImage(String[] hexValues)
 ```
 
 ## 
+
+## Life cycle - Shop
+
+### Sales
+
+The Borgs can also be sold/purchased via this same contract. If you provide the create listing call with a 0x address then it is possible for anyone to buy it (public sale) but if the address is any address other than this, then only this address can purchase the listing (private sale), the worksflow for this has been provided below. There is a fee of 3% hard coded into the contract as commission (immutable), this however only gets deducted after the sale has been made meaning that you can cancel the sale with no fees required.
+
+![Private Sale](https://user-images.githubusercontent.com/7746153/138070382-08d078dc-1aa3-481f-a812-99bb48571625.png)
+
+```solidity
+function addListing(uint256 tokenId, uint256 price, address buyer) public
+```
+
+```solidity
+function purchaseListing(uint256 tokenId) public payable
+```
+
+There is also a way to remove a listing if the seller is getting cold feet (this can however only be performed by the seller themselves).
+
+![Remove Listing](https://user-images.githubusercontent.com/7746153/138070896-60b1a273-877b-426a-a5d7-c4d655f823b4.png)
+
+```solidity
+function removeListing(uint256 tokenId) public
+```
 
