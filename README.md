@@ -46,7 +46,7 @@ The setup of the different layers
 function addLayer(string memory layerName) external onlyOwner editable
 ```
 
-Example: 12
+*Example*: 12
 
 ### Add Blanks
 
@@ -56,7 +56,7 @@ Adds all blank attributes in 1 fell swoop
 function addBlanks(string[] attributeNames) external onlyOwner editable
 ```
 
-Example: ["blank1", "blank2", ..]
+*Example*: ["blank1", "blank2", ..]
 
 ### Create Borg Attributes
 
@@ -66,7 +66,7 @@ Creates a borg attributre which can later be linked to a layer. The attribute is
 function createBorgAttribute(string borgAttributeName, byte[][] hexColours, uint256[][] positions) external onlyOwner editable
 ```
 
-Example: "face_blue", [0][70,70,48,48,48,48,48,48], [0][30,36,38..]
+*Example*: "face_blue", [[70,70,48,48,48,48,48,48], [70,48,48,48,48,48,48,48]], [[30,36,38,..],[12,22,43,..]]
 
 ### Add Attributes To Layers
 
@@ -76,7 +76,7 @@ Finally link up the attributes to layers (and define their chances). Borgs have 
 function addLayerItems(CreateLayerItems[] layerItems) external onlyOwner editable
 ```
 
-Example: [{Chance:15,LayerIndex:0,"face_blue"}, ..]
+*Example*: [{Chance:15,LayerIndex:0,"face_blue"}, ..]
 
 ### Locking for Edit
 
@@ -102,6 +102,8 @@ Once more than 1 borg has been generated it is then possible to breed the borgs 
 function breedBorgs(uint256 borgId1, uint256 borgId2) external usable returns(uint256)
 ```
 
+*Example*: 2,3
+
 ### Getting a Borg
 
 Since the code to generate/show Borgs is all hosted on the blockchain, there needs to be a way to get the Borg. It is returned as a 1 dimensional array which needs to be converted into a 2 dimensional image after retrieval. 
@@ -109,6 +111,8 @@ Since the code to generate/show Borgs is all hosted on the blockchain, there nee
 ```solidity
 function getBorg(uint256 borgId) public view returns(string memory name, string[] memory image, string[] memory attributes, uint256 parentId1, uint256 parentId2, uint256 childId)
 ```
+
+*Example*: 2
 
 The code to convert the 1D array into an image has been provided below in a few different languages:
 
