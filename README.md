@@ -86,8 +86,6 @@ function lock() external onlyOwner
 
 Once the contract has been setup and locked for edit (which can not be undone once done), then borgs can be generated. The attributes for the generated borg are selected using a pseudo-random number which is computed by hashing the previous blockhash and an incrementing counter behind the scenes. Seed generation is not truly random - it can be predicted if you know the previous block's blockhash but it will be hard to determine which attributes will be generated since the chances for these are hidden from public view (attributes are weighted random) and the attributes are not entered in alphabetical order. 
 
-![Generate Borg](https://user-images.githubusercontent.com/7746153/138068936-d2048fa7-d88c-4826-82fa-3daef6f02c5b.png)
-
 ### Generate Borg
 
 ```solidity
@@ -95,8 +93,6 @@ function generateBorg() external payable usable returns(uint256)
 ```
 
 Once more than 1 borg has been generated it is then possible to breed the borgs (as long as both are owned by the persion trying to breed)
-
-![Breed Borg](https://user-images.githubusercontent.com/7746153/138069714-4a6266fc-aeb7-49d7-a551-a43323d64af9.png)
 
 ### Breed Borgs
 
@@ -107,8 +103,6 @@ function breedBorgs(uint256 borgId1, uint256 borgId2) external usable returns(ui
 ### Getting a Borg
 
 Since the code to generate/show Borgs is all hosted on the blockchain, there needs to be a way to get the Borg. It is returned as a 1 dimensional array which needs to be converted into a 2 dimensional image after retrieval. 
-
-![Get Borg](https://user-images.githubusercontent.com/7746153/138071321-9f3c91f2-1240-4d46-a804-d0c54ea171d9.png)
 
 ```solidity
 function getBorg(uint256 borgId) public view returns(string memory name, string[] memory image, string[] memory attributes, uint256 parentId1, uint256 parentId2, uint256 childId)
