@@ -6,6 +6,7 @@ This project deployed: https://borgs.app/
 
 Borgs is an ERC721 non-fungible token which can be deployed to any network that supports Solidity. Our smart contract generates and allows for the breeding of NFTs completely on chain - no side project required! The protocol serves as an open standard to be used or build upon for generative art on the blockchain and anyone is free to take this project and use their own art to generate similar projects. This project contains:
 
+- The ERC721 Borgs contract
 - A hosted service which listens for Borg events and copies them to a database for quick access 
 - A sync for backdated events
 - An API which provides public access to view borgs
