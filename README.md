@@ -36,31 +36,39 @@ The contract uses layers built up of layer items (also known as attributes). The
 
 The setup flow has been outlined in the diagram below:
 
-![image](https://user-images.githubusercontent.com/7746153/161687043-0087cf74-b669-4bb0-a271-64ab5511afc5.png)
+![image](https://user-images.githubusercontent.com/7746153/161687760-867d2610-67cb-46b2-809c-224024517e06.png)
 
-The above example shows the creation of:
-
-- 1 layer
-- 1 layer item
-- 2 colors for layer item
-
-### Add Layer
+### Set Layers
 
 ```solidity
 function addLayer(string memory layerName) external onlyOwner editable
 ```
 
-### Add Layer Item (attribute)
+Example: 12
+
+### Add Blanks
 
 ```solidity
-function addLayerItem(string memory layerName, uint256 chance, string memory borgAttributeName) external onlyOwner editable
+function addBlanks(string[] attributeNames) external onlyOwner editable
 ```
 
-### Add Color to Layer Item
+Example: ["blank1", "blank2", ..]
+
+### Create Borg Attributes
 
 ```solidity
-function addColorToBorgAttribute(string memory borgAttributeName, string memory color, uint256[] memory positions) external onlyOwner editable
+function createBorgAttribute(string borgAttributeName, byte[][] hexColours, uint256[][] positions) external onlyOwner editable
 ```
+
+Example: "face_blue", [0][70,70,48,48,48,48,48,48], [0][30,36,38..]
+
+### Add Attributes To Layers
+
+```solidity
+function addLayerItems(CreateLayerItems[] layerItems) external onlyOwner editable
+```
+
+Example: [{Chance:15,LayerIndex:0,"face_blue"}, ..]
 
 Borgs have 10 layers and a range of between 4-20 layer items per layer, this being said it is no limit! It is also important to note that the contract requires locking for edit before a user can interact with the contract.
 
