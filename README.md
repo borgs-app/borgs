@@ -36,7 +36,7 @@ The contract uses layers built up of layer items (also known as attributes). The
 
 The setup flow has been outlined in the diagram below:
 
-![Setup](https://user-images.githubusercontent.com/7746153/138066292-185cce2d-569d-4992-ac5f-131b86171ea8.png)
+![image](https://user-images.githubusercontent.com/7746153/161687043-0087cf74-b669-4bb0-a271-64ab5511afc5.png)
 
 The above example shows the creation of:
 
