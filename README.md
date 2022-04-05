@@ -1,5 +1,7 @@
 # Borgs
 
+This project deployed: https://borgs.app/
+
 ## Introduction
 
 Borgs is an all in one smart contract that generates, breeds and facilitates the sale of borgs. The protocol serves as an open standard to be used or build upon for generative art on the blockchain. Anyone is free to take this project and use their own art to generate similar projects. This project contains:
@@ -18,7 +20,8 @@ The smart contract
 
 Contract | Network | Address | Link to Polyscan
 --- | --- | --- | --- |
-Test Contract | Polygon Mumbai | 0xaf20d38d7edf2314abf3a5e9fe54bf77f02879da | https://mumbai.polygonscan.com/address/0xaf20d38d7edf2314abf3a5e9fe54bf77f02879da |
+Test Contract | Polygon Mumbai | 0x83fe03b16096266ecd4b6422e3bc2ef25dd401a6 | https://mumbai.polygonscan.com/address/0x83fe03b16096266ecd4b6422e3bc2ef25dd401a6 |
+Production Contract | Polygon Mainnet | 0xa88e5cfa0257460490ce54052b4faee1b3d7f410 | https://polygonscan.com/address/0xa88e5cfa0257460490ce54052b4faee1b3d7f410 |
 
 The source code for this can be found within.
 
