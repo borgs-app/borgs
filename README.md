@@ -4,7 +4,7 @@ This project deployed: https://borgs.app/
 
 ## Introduction
 
-Borgs is an all in one smart contract that generates, breeds and facilitates the sale of borgs. The protocol serves as an open standard to be used or build upon for generative art on the blockchain. Anyone is free to take this project and use their own art to generate similar projects. This project contains:
+Borgs is an ERC721 non-fungible token which can be deployed to any network that supports Solidity. Our smart contract generates and allows for the breeding of NFTs completely on chain - no side project required! The protocol serves as an open standard to be used or build upon for generative art on the blockchain and anyone is free to take this project and use their own art to generate similar projects. This project contains:
 
 - A hosted service which listens for Borg events and copies them to a database for quick access 
 - A sync for backdated events
@@ -14,14 +14,18 @@ Borgs is an all in one smart contract that generates, breeds and facilitates the
 
 If you have any questions, please reach out at [https://discord.gg/7zEd995C](https://discord.gg/7zEd995C)
 
-## Smart contract
+## Smart contracts
 
-The smart contract 
+There are 3 contracts contained within:
+
+- The generative Borgs contract (the ERC721)
+- A Borgs shop contract
+- A Borgs giveaway contract
 
 Contract | Network | Address | Link to Polyscan
 --- | --- | --- | --- |
-Test Contract | Polygon Mumbai | 0x83fe03b16096266ecd4b6422e3bc2ef25dd401a6 | https://mumbai.polygonscan.com/address/0x83fe03b16096266ecd4b6422e3bc2ef25dd401a6 |
-Production Contract | Polygon Mainnet | 0xa88e5cfa0257460490ce54052b4faee1b3d7f410 | https://polygonscan.com/address/0xa88e5cfa0257460490ce54052b4faee1b3d7f410 |
+Test Borgs | Polygon Mumbai | 0x83fe03b16096266ecd4b6422e3bc2ef25dd401a6 | https://mumbai.polygonscan.com/address/0x83fe03b16096266ecd4b6422e3bc2ef25dd401a6 |
+Production Borgs | Polygon Mainnet | 0xa88e5cfa0257460490ce54052b4faee1b3d7f410 | https://polygonscan.com/address/0xa88e5cfa0257460490ce54052b4faee1b3d7f410 |
 
 The source code for this can be found within.
 
