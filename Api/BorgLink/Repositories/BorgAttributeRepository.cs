@@ -26,10 +26,27 @@ namespace BorgLink.Repositories
         /// Gets all borg attributes with the attribute attached
         /// </summary>
         /// <returns></returns>
-        public IEnumerable<BorgAttribute> GetAllWithAttribute()
+        public IQueryable<BorgAttribute> GetAllWithAttribute()
         {
             return _context.BorgAttributes
                 .Include(x => x.Attribute);
+        }
+
+        /// <summary>
+        /// Gets all borg attributes with the attribute attached
+        /// </summary>
+        /// <returns></returns>
+        public IQueryable<BorgAttribute> GetAllWithBorgAndAttribute()
+        {
+            return _context.BorgAttributes
+                .Include(x => x.Borg)
+                .Include(x => x.Attribute);
+        }
+
+        public IQueryable<BorgAttribute> GetAllWithBorg()
+        {
+            return _context.BorgAttributes
+                .Include(x => x.Borg);
         }
     }
 }

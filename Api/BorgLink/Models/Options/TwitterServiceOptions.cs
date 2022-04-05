@@ -30,6 +30,8 @@ namespace BorgLink.Models.Options
         /// </summary>
         public string AccessToken { get; set; }
 
+        public bool Enabled { get; set; }
+
         /// <summary>
         /// The access token secret
         /// </summary>

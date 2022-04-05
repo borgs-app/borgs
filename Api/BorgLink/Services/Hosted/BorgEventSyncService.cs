@@ -5,6 +5,7 @@ using BorgLink.Models.Paging;
 using BorgLink.Services.Ethereum;
 using BorgLink.Services.Platform;
 using BorgLink.Utils;
+using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -27,6 +28,7 @@ namespace BorgLink.Services
         private BorgService _borgService;
         private WebhookService _webhookService;
         private ILogger<BorgEventSyncService> _logger;
+        private TelegramService _telegramService;
         private IServiceScopeFactory _serviceScopeFactory;
 
         /// <summary>
@@ -48,6 +50,7 @@ namespace BorgLink.Services
             _borgService = scope.ServiceProvider.GetService<BorgService>();
             _logger = scope.ServiceProvider.GetService<ILogger<BorgEventSyncService>>();
             _webhookService = scope.ServiceProvider.GetService<WebhookService>();
+            _telegramService = scope.ServiceProvider.GetService<TelegramService>();
         }
 
         /// <summary>
@@ -57,11 +60,19 @@ namespace BorgLink.Services
         /// <returns></returns>
         protected async override Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            // Setup required services
+            SetupServices();
+
+            // Check is enabled
+            if (!_options.Enabled)
+                return;
+
             await Task.Factory.StartNew(async () =>
             {
                 while (true)
                 {
                     await SyncEvents();
+                    await Task.Delay(1000);
                 }
             });
         }
@@ -78,34 +89,37 @@ namespace BorgLink.Services
             // The time to wait between syncs
             var time = _options.IntervalFrequency.ParseFrequencyConfig();
 
-            // Check is enabled
-            if (!_options.Enabled)
-            {
-                await Task.Delay((int)time);
-                return;
-            }
-
             try
             {
                 // Calculate how long sleep for
                 _logger.LogDebug($"{DateTime.UtcNow}|Sleep time for event sync is: {time}");
 
                 // Get all borgs missing from firebase
-                var borgIds = _borgService.GetMissingBorgIds();
+                var borgIds = await _borgService.GetMissingBorgIdsAsync();
 
-                // For each missing, add
-                foreach (var borgId in borgIds)
+                if (borgIds != null)
                 {
-                    // Save Borg
-                    await _borgService.SaveBorgAsync(new Borg(borgId), false);
-                }
+                    // For each missing, add
+                    foreach (var borgId in borgIds)
+                    {
+                        // Save Borg
+                        var borg = new Borg(borgId);
 
-                // Trigger site rebuild
-                await _webhookService.PropegateAsync();
+                        // Queue job
+                        _borgService.SaveBorg(borg, false);
+                    }
+
+                    // Trigger site rebuild
+                    if ((borgIds?.Any() ?? false))
+                        await _webhookService.PropegateAsync();
+                }
             }
             catch (Exception ex)
             {
                 _logger.LogCritical(ex.ToString());
+
+                // Telegram loggers
+                await _telegramService.EchoAsync($"{this.GetType()} {ex.Message}");
             }
             finally
             {

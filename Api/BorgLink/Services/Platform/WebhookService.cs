@@ -26,7 +26,14 @@ namespace BorgLink.Services.Platform
         /// <returns>The operations success</returns>
         public async Task<bool> PropegateAsync()
         {
-            return await PostAsync<bool, object>(string.Empty, null);
+            try
+            {
+                return await PostAsync<bool, object>(string.Empty, null);
+            }
+            catch (Exception ex)
+            {
+                return false;
+            }
         }
     }
 }

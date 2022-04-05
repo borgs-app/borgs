@@ -36,31 +36,6 @@ namespace BorgLink.Services.Storage
         }
 
         /// <summary>
-        /// Upload a blob to the store
-        /// </summary>
-        /// <param name="blobName">The name to save file as</param>
-        /// <param name="blob">The blob to store</param>
-        /// <param name="type">The type of data the blob is</param>
-        /// <returns>THe upload information</returns>
-        public async Task<BlobContentInfo> UploadBlobAsync(string blobName, string blob, AssetType type, ResolutionContainer resolutionContainer)
-        {
-            BlobContentInfo info = null;
-
-            // Get memory stream
-            using (MemoryStream ms = new MemoryStream(Encoding.ASCII.GetBytes(blob)))
-            {
-                // Get connection to client
-                var client = GetBlobConnectionClient(type, resolutionContainer);
-
-                // Upload the stream
-                info = await client.UploadBlobAsync(blobName, ms);
-            }
-
-            // Return the upload info
-            return info;
-        }
-
-        /// <summary>
         /// Get a file stream from Azure storage. Careful as this returns a raw stream unmanaged
         /// </summary>
         /// <param name="fileName">The file to retrieve</param>
@@ -101,7 +76,7 @@ namespace BorgLink.Services.Storage
         /// <param name="type">The type of data the blob is</param>
         /// <param name="resolutionContainer">The resolution folder image is being saved to (sub folder)</param>
         /// <returns>The upload information</returns>
-        public async Task<BlobContentInfo> UploadBlobAsync(MemoryStream stream, string etag, AssetType type, ResolutionContainer resolutionContainer)
+        public async Task<BlobContentInfo> UploadBlobAsync(MemoryStream stream, string etag, ResolutionContainer resolutionContainer)
         {
             // Get memory stream
             using (stream)
@@ -110,11 +85,33 @@ namespace BorgLink.Services.Storage
                 stream.Position = 0;
 
                 // Get connection to client
-                var client = GetBlobConnectionClient(type, resolutionContainer);
+                var client = GetBlobConnectionClient(resolutionContainer);
 
                 // Upload the stream
                 return await client.UploadBlobAsync(etag, stream);
             }
+        }
+
+        /// <summary>
+        /// Get borg
+        /// </summary>
+        /// <param name="borgId">The borg to get</param>
+        /// <param name="type"></param>
+        /// <param name="container">The container the borg lives in</param>
+        /// <returns>Borg</returns>
+        public async Task<bool> DoesBorgExist(int borgId, ResolutionContainer container)
+        {
+            // Get connection to client
+            var client = GetBlobConnectionClient(container);
+
+            // Get blob
+            var blobItem = client.GetBlobs(prefix: $"{borgId}.png").FirstOrDefault();
+
+            // Confirm exists
+            if (blobItem != null)
+                return true;
+
+            return false;
         }
 
         /// <summary>
@@ -123,10 +120,10 @@ namespace BorgLink.Services.Storage
         /// <param name="etag">The name of the file (etag)</param>
         /// <param name="assetType"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteBlobAsync(string etag, AssetType assetType, ResolutionContainer resolutionContainer)
+        public async Task<bool> DeleteBlobAsync(string etag, ResolutionContainer resolutionContainer)
         {
             // Get connection to client
-            var client = GetBlobConnectionClient(assetType, resolutionContainer);
+            var client = GetBlobConnectionClient(resolutionContainer);
 
             // Delete
             return await client.DeleteBlobIfExistsAsync(etag);
@@ -138,9 +135,9 @@ namespace BorgLink.Services.Storage
         /// <param name="type">The container client</param>
         /// <param name="storedPolicyName">Policy</param>
         /// <returns>Uri</returns>
-        public Uri GetServiceSasUriForContainer(AssetType type, ResolutionContainer resolutionContainer, string storedPolicyName = null)
+        public Uri GetServiceSasUriForContainer(ResolutionContainer resolutionContainer, string storedPolicyName = null)
         {
-            var containerClient = GetSharedBlobConnectionClient(type, resolutionContainer);
+            var containerClient = GetSharedBlobConnectionClient(resolutionContainer);
 
             // Check whether this BlobContainerClient object has been authorized with Shared Key.
             if (containerClient.CanGenerateSasUri)
@@ -168,18 +165,18 @@ namespace BorgLink.Services.Storage
                 return containerClient.GenerateSasUri(sasBuilder);
             }
             else
-            { 
+            {
                 return null;
             }
         }
 
         #region Helpers
 
-             /// <summary>
-             /// Gets a cloud storage client
-             /// </summary>
-             /// <returns>A cloud service client</returns>
-        private BlobContainerClient GetSharedBlobConnectionClient(AssetType type, ResolutionContainer resolutionContainer)
+        /// <summary>
+        /// Gets a cloud storage client
+        /// </summary>
+        /// <returns>A cloud service client</returns>
+        private BlobContainerClient GetSharedBlobConnectionClient(ResolutionContainer resolutionContainer)
         {
             // Get the access key
             var storageKey = _storageOptions.AccessKeys.FirstOrDefault();
@@ -219,7 +216,7 @@ namespace BorgLink.Services.Storage
         /// <param name="type">The file type to upload/download</param>
         /// <param name="resolutionContainer">The resolution folder image is being saved to (sub folder)</param>
         /// <returns></returns>
-        private BlobContainerClient GetBlobConnectionClient(AssetType type, ResolutionContainer resolutionContainer)
+        private BlobContainerClient GetBlobConnectionClient(ResolutionContainer resolutionContainer)
         {
             // Get the access key
             var key = _storageOptions.AccessKeys.FirstOrDefault();

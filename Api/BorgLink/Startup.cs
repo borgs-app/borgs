@@ -29,6 +29,8 @@ using BorgLink.Utils;
 using BorgLink.Context.Contexts;
 using Newtonsoft.Json;
 using Bazinga.AspNetCore.Authentication.Basic;
+using Hangfire;
+using Microsoft.Extensions.Options;
 
 namespace BorgLink
 {
@@ -59,7 +61,8 @@ namespace BorgLink
         {
             // Setup controller
             services.AddControllers()
-                .ConfigureApiBehaviorOptions(options => {
+                .ConfigureApiBehaviorOptions(options =>
+                {
                     options.ClientErrorMapping[404].Link = "https://httpstatuses.com/404";
                 })
                 .AddNewtonsoftJson(opts =>
@@ -86,8 +89,18 @@ namespace BorgLink
             services.Configure<StorageOptions>(options => Configuration.GetSection("StorageOptions").Bind(options));
             services.Configure<WebhookServiceOptions>(options => Configuration.GetSection("WebhookServiceOptions").Bind(options));
             services.Configure<UploadResolutionOptions>(options => Configuration.GetSection("UploadResolutionOptions").Bind(options));
+            services.Configure<TelegramOptions>(options => Configuration.GetSection("TelegramOptions").Bind(options));
+            services.Configure<OpenSeaOptions>(options => Configuration.GetSection("OpenSeaOptions").Bind(options));
+            services.Configure<BorgEventSyncPingOptions>(options => Configuration.GetSection("BorgEventSyncPingOptions").Bind(options));
 
             //FileUtility.GenerateAzureAppSettings();
+
+            // Hangfire queues
+            services.AddHangfire(x => x.UseSqlServerStorage(Configuration.GetValue<string>("AppConnectionString")));
+
+            // Only uncomment if it is required to process events on this server (currently should be limited to events api)
+            if (Configuration.GetValue<bool>("Hangfire:Server:Enabled"))
+                services.AddHangfireServer(options => { options.WorkerCount = Configuration.GetValue<int>("Hangfire:Server:WorkerCount"); });
 
             // Add http client
             services.AddHttpClient();
@@ -104,13 +117,18 @@ namespace BorgLink
             services.AddSingleton<IRateLimitCounterStore, MemoryCacheRateLimitCounterStore>();
             services.AddSingleton<IRateLimitConfiguration, RateLimitConfiguration>();
 
+            // Loads failed reasons
+            services.LoadErrorMappings();
+
             // Register webhook service
             services.AddHttpClient("WebhookService", (HttpClient client) => { client.BaseAddress = new Uri(Configuration.GetValue<string>("WebhookServiceOptions:Endpoint")); });
+            services.AddHttpClient("OpenSeaService", (HttpClient client) => { client.BaseAddress = new Uri(Configuration.GetValue<string>("OpenSeaOptions:Endpoint")); });
 
             // DI
             services.AddTransient<BorgRepository>();
             services.AddTransient<AttributeRepository>();
             services.AddTransient<BorgAttributeRepository>();
+            services.AddSingleton(s => new JobRepository(Configuration.GetValue<string>("AppConnectionString")));
 
             // Add services
             services.AddTransient<IStorageService, StorageService>();
@@ -118,12 +136,23 @@ namespace BorgLink
             services.AddTransient<BorgTokenService>();
             services.AddTransient<TwitterService>();
             services.AddTransient<BorgService>();
-            services.AddTransient<WebhookService>(s => new WebhookService(s.GetService<IHttpClientFactory>().CreateClient("WebhookService")));
+            services.AddTransient<TelegramService>();
+            services.AddTransient(s => new OpenSeaService(s.GetService<IOptions<OpenSeaOptions>>(), s.GetService<IHttpClientFactory>().CreateClient("OpenSeaService")));
+            services.AddTransient(s => new WebhookService(s.GetService<IHttpClientFactory>().CreateClient("WebhookService")));
 
-            // Hosted services
-            services.AddHostedService<BorgEventListenerService<GeneratedBorgEventDTO>>();
-            services.AddHostedService<BorgEventListenerService<BredBorgEventDTO>>();
-            services.AddHostedService<BorgEventSyncService>();
+            // Event listeners
+            if (Configuration.GetValue<bool>("BorgEventListenerOptions:Enabled"))
+            {
+                services.AddHostedService<BorgEventListenerService<GeneratedBorgEventDTO>>();
+                services.AddHostedService<BorgEventListenerService<BredBorgEventDTO>>();
+            }
+
+            if(Configuration.GetValue<bool>("BorgEventSyncPingOptions:Enabled"))
+                services.AddHostedService<BorgEventSyncPingService>();
+
+            // Event sync
+            if (Configuration.GetValue<bool>("BorgEventSyncOptions:Enabled"))
+                services.AddHostedService<BorgEventSyncService>();
 
             // Setup database contexts
             services.SetContext<BorgContext>(Configuration.GetValue<string>("AppConnectionString"));
@@ -143,9 +172,15 @@ namespace BorgLink
         /// <param name="env">The runtime environment</param>
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            // User exception page (do not use in production environment)
+            if (env.IsDevelopment())
+                app.UseDeveloperExceptionPage();
+
             // Use swagger
             app.UseSwagger();
             app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "BorgLink v1"));
+
+            app.UseHttpsRedirection();
 
             // Rate limit ips
             app.UseIpRateLimiting();
@@ -159,6 +194,9 @@ namespace BorgLink
             // Use authentication
             app.UseAuthentication();
 
+            // Add the dashboard to view job progress
+            app.UseHangfireDashboard();
+
             // Use error hanling middleware
             app.UseMiddleware<ErrorHandlingMiddleware>();
 
@@ -168,7 +206,12 @@ namespace BorgLink
             // Map endpoints to controller names
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllers();
+                // If the app is configured for endpoints, map
+                if (Configuration.GetValue<bool>("Enpoints:Enabled"))
+                    endpoints.MapControllers();
+
+                // Map hangfire
+                endpoints.MapHangfireDashboard("/hangfire");//.RequireAuthorization();
             });
         }
     }

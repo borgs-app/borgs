@@ -1,7 +1,5 @@
-﻿using BorgImageReader.Ethereum;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -10,7 +8,8 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
-namespace BorgImageReader
+
+namespace BorgSpawner
 {
     public class Program
     {
@@ -30,11 +29,19 @@ namespace BorgImageReader
             var adminAddress = configuration.GetValue<string>("AdminAddress");
             var abiCode = configuration.GetValue<string>("AbiCode");
             var chainId = configuration.GetValue<long>("ChainId");
+            var tokenCount = configuration.GetValue<int>("TokenCount");
 
-            var uploader = new BorgUploader(key, contractAddress, endpointAddress, adminAddress, abiCode, chainId);
+            Console.WriteLine("Loading config.");
 
-            uploader.StartAsync().GetAwaiter().GetResult();
+            // Create service
+            var service = new BorgService(key, contractAddress, endpointAddress, adminAddress, abiCode, chainId);
 
+            Console.WriteLine("Service created. Now generating token");
+
+            // Generate the tokens
+            service.GenerateTokensAsync(tokenCount).GetAwaiter().GetResult();
+
+            Console.WriteLine("Completed.");
         }
 
         /// <summary>
@@ -55,27 +62,4 @@ namespace BorgImageReader
             return configuration;
         }
     }
-
-    /*      
-     // Generate token
-     var borgService = new BorgService(Key, ContractAddress, EndpointAddress, AdminAddress, AbiCode, ChainId);
-     borgService.GenerateTokensAsync(3000).GetAwaiter().GetResult();
-
-     // Breed
-     borgService.BreedAsync(1).GetAwaiter().GetResult();
-
-     /*
-     // Save image/s
-     var images = new List<string>();
-     for(int i=4;i<5;i++)
-     {
-         var rawImage = borgService.GetBorgImageAsync(i).GetAwaiter().GetResult();
-         var convertedImage = ConvertBorgToBitmap(rawImage);
-         //convertedImage.Save($"test{i}.png");
-         var newImg = ResizeBitmap(convertedImage, 384, 384);
-         newImg.Save($"test_{i}.png");
-         images.Add(string.Join(",", rawImage));
-     }
-     */
 }
-

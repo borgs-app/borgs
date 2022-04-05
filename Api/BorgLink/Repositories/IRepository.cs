@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace BorgLink.Repositories
@@ -36,7 +37,7 @@ namespace BorgLink.Repositories
         /// </summary>
         /// <param name="tableName">Optional tablename param</param>
         /// <returns>List of items</returns>
-        IEnumerable<T> GetAll(string tableName = null);
+        IQueryable<T> GetAll(string tableName = null);
 
         /// <summary>
         /// Save context

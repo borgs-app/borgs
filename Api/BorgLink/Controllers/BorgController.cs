@@ -8,6 +8,7 @@ using BorgLink.Models.ViewModels;
 using BorgLink.Services;
 using BorgLink.Services.Ethereum;
 using BorgLink.Utils;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +17,8 @@ using Microsoft.Extensions.Options;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
@@ -34,6 +37,7 @@ namespace BorgLink.Controllers
         private readonly BorgService _borgService;
         private readonly BorgTokenService _borgTokenService;
         private readonly IMapper _mapper;
+        private readonly TwitterService _twitterService;
 
         /// <summary>
         /// Constructor
@@ -44,9 +48,10 @@ namespace BorgLink.Controllers
         /// <param name="logger"></param>
         /// <param name="mapper"></param>
         public BorgController(BorgService borgService, BorgTokenService borgTokenService, MemoryCacheService cacheService,
-            ILogger<BorgController> logger, IMapper mapper)
+            ILogger<BorgController> logger, IMapper mapper, TwitterService twitterService)
             : base (cacheService)
         {
+            _twitterService = twitterService;
             _mapper = mapper;
             _logger = logger;
             _borgTokenService = borgTokenService;
@@ -65,16 +70,14 @@ namespace BorgLink.Controllers
         [Route("contract/{id}")]
         public async Task<ActionResult<string>> GetBorgFromContract(int id)
         {
-            var attributes = (await _borgService.GetContractBorgAsync(id))?.Attributes;
-            await _borgService.AddBorgAttributesAsync(id, attributes);
-
             // Save
             var borg = await _borgService.GetContractBorgAsync(id);
             if (borg == null)
                 return UnprocessableEntity("Borg doesn't exist");
 
             return Ok(borg);
-        }*/
+        }
+        */
 
         /// <summary>
         /// Private: Used to generate/regenerate a generated borg (supply obj.Object.BorgId). This 
@@ -89,11 +92,12 @@ namespace BorgLink.Controllers
         public async Task<ActionResult<string>> SaveBorg(int id)
         {
             // Save
-            var borg = await _borgService.SaveBorgAsync(new Borg(id), true);
-            if (borg == null)
-                return UnprocessableEntity("Borg doesn't exist");
+            var borg = new Borg(id);
 
-            return Ok(borg);
+            // Queue job
+            _borgService.SaveBorg(borg, true);
+
+            return Ok();
         }
 
         /// <summary>
@@ -109,12 +113,13 @@ namespace BorgLink.Controllers
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Route("~/borgs")]
-        public async Task<ActionResult<PagedResult<BorgViewModel>>> GetAllBorgsAsync(int? parentId, int? childId, string attributeStr = null, Condition condition = Condition.Both, 
+        public async Task<ActionResult<PagedResult<BorgViewModel>>> GetAllBorgsAsync(int? id, int? parentId, int? childId, string attributeStr = null, Condition condition = Condition.Both, 
             uint pageNumber = 0, uint perPage = 36)
         {
+            var missingBorgs = await _borgService.GetMissingBorgIdsAsync();
             // Check for page limit
-            if (perPage > 50)
-                return BadRequest("Per page limit is 50");
+            if (perPage > 1000)
+                return BadRequest("Per page limit is 1000");
 
             // Join for cache key
             var attributes = string.IsNullOrEmpty(attributeStr) ? null : attributeStr.Split(',').ToList();
@@ -123,7 +128,7 @@ namespace BorgLink.Controllers
             var cachedItem = GetCachedItem<PagedResult<BorgViewModel>>($"pagedborgs_parent_{parentId}_child_{childId}_attributes_{attributeStr}_condition_{condition}_page_{pageNumber}_perPage_{perPage}", () =>
             {
                 // Get the borgs
-                var borgs = _borgService.GetPagedBorgs(parentId, childId, attributes, condition, new Page(pageNumber, perPage));
+                var borgs = _borgService.GetPagedBorgs(id, parentId, childId, attributes, condition, new Page(pageNumber, perPage));
 
                 // Build the result to cache
                 return new PagedResult<BorgViewModel>()
@@ -132,7 +137,7 @@ namespace BorgLink.Controllers
                     TotalResults = borgs.TotalResults,
                     Page = borgs.Page,
                 };
-            }, 15);
+            }, 30);
 
             // Map and return
             return Ok(cachedItem);
@@ -141,18 +146,19 @@ namespace BorgLink.Controllers
         /// <summary>
         /// Public: Gets all borgs attributes and how many times they have been used)
         /// </summary>
-        /// <returns>Borgs</returns>
+        /// <param name="condition">The condition of the borgs with the attributes - optional - default alive</param>
+        /// <returns>Borgs attributes</returns>
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [Route("~/borgs/attributes")]
-       public async Task<ActionResult<List<AttributeCountViewModel>>> GetAllBorgAttributeCountsAsync()
+       public async Task<ActionResult<List<AttributeCountViewModel>>> GetAllBorgAttributeCountsAsync(Condition condition)
         {
             // Try to get image from cache, if not then get new one from storage
-            var cachedItem = GetCachedItem<List<AttributeCountViewModel>>($"borg_attributes", () =>
+            var cachedItem = GetCachedItem<List<AttributeCountViewModel>>($"borg_attributes{condition}", () =>
             {
                 // Get counts
-                var attributeCounts = _borgService.GetUsedAttributeCounts();
-
+                var attributeCounts = _borgService.GetUsedAttributeCounts(condition);
+                  
                 // Return mapped counts
                 return _mapper.Map<List<AttributeCountViewModel>>(attributeCounts);
             }, 30);
@@ -160,6 +166,30 @@ namespace BorgLink.Controllers
             // Map and return
             return Ok(cachedItem);
         }
+
+        /// <summary>
+        /// Public: Gets all borgs attributes and how many times they have been used)
+        /// </summary>
+        /// <param name="condition">The condition of the borgs with the attributes - optional - default alive</param>
+        /// <returns>Borgs attributes</returns>
+        /*[HttpGet]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [Route("~/borgs/like")]
+        public async Task<ActionResult<List<LikeBorgsViewModel>>> GetLikeBorgsAsync(Condition condition, uint pageNumber = 0, uint perPage = 36)
+        {
+            // Try to get image from cache, if not then get new one from storage
+            var cachedItem = GetCachedItem<List<LikeBorgsViewModel>>($"like_borgs{condition}", () =>
+            {
+                // Get counts
+                var likeBorgs = _borgService.GetLikeBorgs(condition, new Page(pageNumber, perPage));
+
+                // Return mapped counts
+                return _mapper.Map<List<LikeBorgsViewModel>>(likeBorgs);
+            }, 30);
+
+            // Map and return
+            return Ok(cachedItem);
+        }*/
 
         /// <summary>
         /// Public: Gets the rarity of a borg
@@ -176,7 +206,7 @@ namespace BorgLink.Controllers
             {
                 // Get rarity
                 return new DecimalResult(_borgService.GetRarityAsync(id));
-            }, 600);
+            }, 30);
 
             // Map and return
             return Ok(cachedItem.Result);
@@ -195,9 +225,6 @@ namespace BorgLink.Controllers
             // Try to get image from cache, if not then get new one from storage
             var cachedItem = GetCachedItem<BorgViewModel>($"borg_{id}", () =>
             {
-                // Get borg
-                // var borg = _borgTokenService.GetBorgAsync(id).GetAwaiter().GetResult();
-
                 // Get borg
                 var borg = _borgService.GetFullBorgFromDatabaseById(id);
 
@@ -227,7 +254,7 @@ namespace BorgLink.Controllers
 
                 // Map and return
                 return _mapper.Map<OpenseaBorgViewModel>(borg);
-            }, 20);
+            }, 30);
 
             // Map and return
             return Ok(cachedItem);

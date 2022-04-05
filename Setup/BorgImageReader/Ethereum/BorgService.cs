@@ -124,10 +124,12 @@ namespace BorgImageReader.Ethereum
             var addLayer = contract.GetFunction("createBorgAttribute");
 
             // Estimate gas
-            var gas = await addLayer.EstimateGasAsync(_adminAddress, null, null, borgAttributeName, hexColours, positions);
+            var gas = new HexBigInteger((await addLayer.EstimateGasAsync(_adminAddress, null, null, borgAttributeName, hexColours, positions)).Value);
+            var gasPrice = await contract.Eth.GasPrice.SendRequestAsync();
+            gasPrice = new HexBigInteger(gasPrice.Value * new BigInteger(2));
 
             // Send transaction
-            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, (HexBigInteger)null, borgAttributeName, hexColours, positions);
+            var hex = await addLayer.SendTransactionAsync(_adminAddress, gas, gasPrice, (HexBigInteger)null, borgAttributeName, hexColours, positions);
 
             // Return transaction hash
             return hex;

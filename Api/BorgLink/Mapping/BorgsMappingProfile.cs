@@ -31,6 +31,13 @@ namespace BorgLink.Mapping
         {
             #region Borgs
 
+            CreateMap<LikeBorgsViewModel, LikeBorgs>();
+            CreateMap<LikeBorgs, LikeBorgsViewModel>();
+
+            CreateMap<PlainBorgViewModel, Borg>();
+            CreateMap<Borg, PlainBorgViewModel>()
+                .ForMember(dest => dest.Id, src => src.MapFrom(x => x.BorgId));
+
             CreateMap<AttributeCountViewModel, AttributeCount>();
             CreateMap<AttributeCount, AttributeCountViewModel>();
 

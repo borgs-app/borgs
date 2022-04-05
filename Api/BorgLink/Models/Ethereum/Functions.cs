@@ -54,7 +54,7 @@ namespace BorgLink.Ethereum
         /// The borg to get
         /// </summary>
         [Parameter("uint256", "borgId", 1)]
-        public int BorgId { get; set; }
+        public BigInteger BorgId { get; set; }
     }
 
     /// <summary>
@@ -226,5 +226,19 @@ namespace BorgLink.Ethereum
         /// </summary>
         [Parameter("uint256", "childId", 6)]
         public BigInteger ChildId { get; set; }
+    }
+
+    public partial class TotalBredFunction : TotalBredFunctionBase { }
+
+    [Function("getCurrentBredCount", "uint256")]
+    public class TotalBredFunctionBase : FunctionMessage
+    {
+    }
+
+    public partial class TotalGeneratedFunction : TotalGeneratedFunctionBase { }
+
+    [Function("getCurrentGenerationCount", "uint256")]
+    public class TotalGeneratedFunctionBase : FunctionMessage
+    {
     }
 }

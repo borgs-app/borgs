@@ -28,17 +28,18 @@ namespace BorgLink.Mapping.Converters
                 return null;
             if (destination == null)
                 destination = new OpenseaBorgViewModel();
-   
+
             // Map
-            destination.Name = source.Name;
+            destination.Name = source.Name ?? $"Borg #{source.BorgId}";
             destination.Image = string.Format(source.Url, ResolutionContainer.Large.ToString().ToLower());
             destination.Attributes = source?.BorgAttributes?
                 .Where(x => x.Attribute != null)
                 .Where(x => (!x.Attribute.Name?.Contains("blank") ?? false))
                 .Select(x => new OpenSeaAttributeViewModel(){ TraitType = $"Layer {x.Attribute.LayerNumber}", Value = x.Attribute.Name })
                 .ToList();
-            destination.Description = "Cyborgs DAO is made of ~20k androgynous cyborgs that spawn, breed & die on-chain. All borg artwork is stored in the token (no IPFS) and borgs are randomly generated directly on-chain when spawned.";
-            destination.External_url = $"https://borgs.app/borgs/{source.BorgId}";
+            destination.Description = "Cyborgs DAO is made of cyborgs that spawn, breed & die on-chain. All borg artwork is stored in the token (no IPFS) and borgs are randomly generated directly on-chain when spawned.";
+            destination.ExternalUrl = $"https://borgs.app/borgs/{source.BorgId}";
+            destination.Color = "#6A8495";
 
             // Returned the mapping
             return destination;

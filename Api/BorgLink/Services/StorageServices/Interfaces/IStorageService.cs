@@ -12,15 +12,6 @@ namespace BorgLink.Services.Storage.Interfaces
     public interface IStorageService
     {
         /// <summary>
-        /// Upload a blob to the store
-        /// </summary>
-        /// <param name="blobName">The name to save file as</param>
-        /// <param name="blob">The blob to store</param>
-        /// <param name="type">THe type of data the blob is</param>
-        /// <returns>The upload information</returns>
-        Task<BlobContentInfo> UploadBlobAsync(string blobName, string blob, AssetType type, ResolutionContainer resolutionContainer);
-
-        /// <summary>
         /// Gets a file stream
         /// </summary>
         /// <param name="fileName">The file name</param>
@@ -42,15 +33,14 @@ namespace BorgLink.Services.Storage.Interfaces
         /// <param name="resolutionContainer">The file size</param>
         /// <param name="storedPolicyName">Policy</param>
         /// <returns>Uri</returns>
-        public Uri GetServiceSasUriForContainer(AssetType type, ResolutionContainer resolutionContainer, string storedPolicyName = null);
+        public Uri GetServiceSasUriForContainer(ResolutionContainer resolutionContainer, string storedPolicyName = null);
 
         /// <summary>
         /// Delete a blob from storage
         /// </summary>
         /// <param name="etag">The name of the file (etag)</param>
-        /// <param name="assetType"></param>
         /// <returns></returns>
-        Task<bool> DeleteBlobAsync(string etag, AssetType assetType, ResolutionContainer resolutionContainer);
+        Task<bool> DeleteBlobAsync(string etag, ResolutionContainer resolutionContainer);
 
         /// <summary>
         /// Upload a blob to the store
@@ -60,6 +50,14 @@ namespace BorgLink.Services.Storage.Interfaces
         /// <param name="type">The type of data the blob is</param>
         /// <param name="resolutionContainer">The resolution folder image is being saved to (sub folder)</param>
         /// <returns>The upload information</returns>
-        Task<BlobContentInfo> UploadBlobAsync(MemoryStream stream, string name, AssetType type, ResolutionContainer resolutionContainer);
+        Task<BlobContentInfo> UploadBlobAsync(MemoryStream stream, string name, ResolutionContainer resolutionContainer);
+
+        /// <summary>
+        /// Get borg
+        /// </summary>
+        /// <param name="borgId">The borg to get</param>
+        /// <param name="container">The container the borg lives in</param>
+        /// <returns>Borg</returns>
+        Task<bool> DoesBorgExist(int borgId, ResolutionContainer container);
     }
 }

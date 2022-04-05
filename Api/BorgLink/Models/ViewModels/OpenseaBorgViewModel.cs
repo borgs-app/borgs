@@ -21,13 +21,19 @@ namespace BorgLink.Models.ViewModels
         /// The external url
         /// </summary>
         [JsonProperty("external_url")]
-        public string External_url { get; set; }
+        public string ExternalUrl { get; set; }
 
         /// <summary>
         /// The hosted image url
         /// </summary>
         [JsonProperty("image")]
         public string Image { get; set; }
+
+        /// <summary>
+        /// The external url
+        /// </summary>
+        [JsonProperty("background_color")]
+        public string Color { get; set; }
 
         /// <summary>
         /// The borgs name

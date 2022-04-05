@@ -9,9 +9,12 @@ using BorgLink.Services.Ethereum;
 using BorgLink.Services.Platform;
 using BorgLink.Services.Storage.Interfaces;
 using BorgLink.Utils;
+using Hangfire;
 using Microsoft.Extensions.Options;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -31,7 +34,10 @@ namespace BorgLink.Services
         private readonly BorgAttributeRepository _borgAttributeRepository;
         private readonly IStorageService _storageService;
         private readonly WebhookService _webhookService;
+        private readonly TwitterService _twitterService;
         private readonly BorgRepository _borgRepository;
+        private readonly JobRepository _jobRepository;
+        private readonly TwitterServiceOptions _twitterOptions;
 
         /// <summary>
         /// Constructor
@@ -42,9 +48,13 @@ namespace BorgLink.Services
         /// <param name="borgAttributeRepository">The borg attributes database repository</param>
         /// <param name="attributeRepository">The attribute database repository</param>
         /// <param name="options">The options/settings</param>
-        public BorgService(BorgTokenService borgTokenService, IStorageService storageService, BorgRepository borgRepository, WebhookService webhookService,
-            BorgAttributeRepository borgAttributeRepository, AttributeRepository attributeRepository, IOptions<BorgServiceOptions> options)
+        public BorgService(BorgTokenService borgTokenService, IStorageService storageService, BorgRepository borgRepository, WebhookService webhookService, JobRepository jobRepository,
+            TwitterService twitterService, BorgAttributeRepository borgAttributeRepository, AttributeRepository attributeRepository, IOptions<BorgServiceOptions> options,
+            IOptions<TwitterServiceOptions> twitterOptions)
         {
+            _twitterOptions = twitterOptions.Value;
+            _jobRepository = jobRepository;
+            _twitterService = twitterService;
             _borgRepository = borgRepository;
             _borgTokenService = borgTokenService;
             _storageService = storageService;
@@ -78,20 +88,6 @@ namespace BorgLink.Services
         }
 
         /// <summary>
-        /// Clear all borgs from database
-        /// </summary>
-        /// <returns></returns>
-        public async Task<bool> ClearAllDbBorgsAsync()
-        {
-            var allBorgs = _borgRepository.GetAllWithAttributes()
-                .ToList();
-
-            _borgRepository.RemoveRange(allBorgs);
-
-            return await _borgRepository.EnsureSaveChangesAsync();
-        }
-
-        /// <summary>
         /// Save a borg to the databse
         /// </summary>
         /// <param name="borg">The borg to save</param>
@@ -115,7 +111,20 @@ namespace BorgLink.Services
         /// <param name="borg">THe borg to save</param>
         /// <param name="triggerWebhooks">If webhooks are to be triggered with creation</param>
         /// <returns>The url of the uploaded borg</returns>
-        public async Task<Borg> SaveBorgAsync(Borg borg, bool triggerWebhooks)
+        public bool SaveBorg(Borg borg, bool triggerWebhooks)
+        {
+            // If not then save borg
+            BackgroundJob.Enqueue(() => SaveBorgInDatabaseAndStorageAsync(borg, triggerWebhooks));
+            return true;
+        }
+
+        /// <summary>
+        /// Save a borg in db
+        /// </summary>
+        /// <param name="borg">THe borg to save</param>
+        /// <param name="triggerWebhooks">If webhooks are to be triggered with creation</param>
+        /// <returns>The url of the uploaded borg</returns>
+        public async Task<Borg> SaveBorgInDatabaseAndStorageAsync(Borg borg, bool triggerWebhooks)
         {
             // Check for existing
             var existingBorg = GetBorgFromDatabaseById(borg.BorgId);
@@ -138,6 +147,10 @@ namespace BorgLink.Services
                     // Check if we need to update parents (for children)
                     if (importedBorg.ParentId1.HasValue && importedBorg.ParentId2.HasValue)
                         await UpdateParentsChildrenAsync(importedBorg.ParentId1.Value, importedBorg.ParentId2.Value, borg.BorgId);
+
+                    // Post to twitter
+                    var url = $"{savedBorg.Url.Replace("{0}", "large")}";
+                    await _twitterService.PostAsync($"#Borg {importedBorg.BorgId} has been spawned at {DateTime.UtcNow} UTC https://borgs.app/borgs/{importedBorg.BorgId}", url);
 
                     // Prompt site rebuild
                     if (triggerWebhooks)
@@ -176,11 +189,9 @@ namespace BorgLink.Services
         /// Get the total used attribute counts
         /// </summary>
         /// <returns>How many times each attribute has been used (that exists)</returns>
-        public List<AttributeCount> GetUsedAttributeCounts()
+        public List<AttributeCount> GetUsedAttributeCounts(Condition condition)
         {
-            return _borgAttributeRepository.GetAllWithAttribute()
-                .GroupBy(x => x.Attribute.Name)
-                .Select(x => new AttributeCount() { Name = x.Key, Count = x.Count() })
+            return  _attributeRepository.GetAttributeCounts(condition)
                 .ToList();
         }
 
@@ -214,7 +225,7 @@ namespace BorgLink.Services
         {
             // Link to borg now
             var attributeLinks = new List<BorgAttribute>();
-            for (var i = 0; i< attributeIds.Count();i++)
+            for (var i = 0; i < attributeIds.Count(); i++)
             {
                 // Create link
                 attributeLinks.Add(new BorgAttribute() { AttributeId = attributeIds[i], BorgId = borgId });
@@ -293,9 +304,14 @@ namespace BorgLink.Services
                 return null;
 
             // Upload 
-            await UploadBorgToStorage(borgId, blockChainBorg.Image, ResolutionContainer.Default, 24, 24);
-            await UploadBorgToStorage(borgId, blockChainBorg.Image, ResolutionContainer.Medium, 600, 600);
-            await UploadBorgToStorage(borgId, blockChainBorg.Image, ResolutionContainer.Large, 1400, 1400);
+            if (!await DoesBorgExistInStorageAsync(borgId, ResolutionContainer.Default))
+                await UploadBorgToStorage(borgId, blockChainBorg.Image, ResolutionContainer.Default, 24, 24, 0);
+
+            if (!await DoesBorgExistInStorageAsync(borgId, ResolutionContainer.Medium))
+                await UploadBorgToStorage(borgId, blockChainBorg.Image, ResolutionContainer.Medium, 600, 600, 14);
+
+            if (!await DoesBorgExistInStorageAsync(borgId, ResolutionContainer.Large))
+                await UploadBorgToStorage(borgId, blockChainBorg.Image, ResolutionContainer.Large, 1400, 1400, 30);
 
             // Copy the rest of data across
             borg.Attributes = blockChainBorg.Attributes;
@@ -309,7 +325,12 @@ namespace BorgLink.Services
             return borg;
         }
 
-        private async Task UploadBorgToStorage(int borgId, List<byte[]> image, ResolutionContainer resolutionContainer, int width, int height)
+        public async Task<bool> DoesBorgExistInStorageAsync(int borgId, ResolutionContainer container)
+        {
+            return await _storageService.DoesBorgExist(borgId, container);
+        }
+
+        private async Task UploadBorgToStorage(int borgId, List<byte[]> image, ResolutionContainer resolutionContainer, int width, int height, int blank)
         {
             // Convert to bitmap
             var borgImage = ImageUtils.ConvertBorgToBitmap(image);
@@ -317,13 +338,16 @@ namespace BorgLink.Services
             // Resize
             borgImage = ImageUtils.ResizeBitmap(borgImage, width, height);
 
+            // Crop
+            borgImage = ImageUtils.Crop(borgImage, new Rectangle(new Point(0, 0), new Size(width - blank, height - blank)));
+
             // Open stream to image
             using (var stream = new MemoryStream())
             {
                 borgImage.Save(stream, ImageFormat.Png);
 
                 // Save image and get url
-                var info = await _storageService.UploadBlobAsync(stream, $"{borgId}.png", AssetType.Test, resolutionContainer);
+                var info = await _storageService.UploadBlobAsync(stream, $"{borgId}.png", resolutionContainer);
             }
         }
 
@@ -391,10 +415,14 @@ namespace BorgLink.Services
         /// <param name="condition">The current condition of the borg to search by</param>
         /// <param name="page">The page to get</param>
         /// <returns>Paged Borgs</returns>
-        public PagedResult<Borg> GetPagedBorgs(int? parentId, int? childId, List<string> attributes, Condition? condition, Page page)
+        public PagedResult<Borg> GetPagedBorgs(int? id, int? parentId, int? childId, List<string> attributes, Condition? condition, Page page)
         {
             // Get the borgs
             var borgs = GetBorgs(parentId, childId, attributes, condition);
+
+            // Filter by id if needed
+            if (id.HasValue)
+                borgs = borgs.Where(x => x.BorgId == id);
 
             // Page - default newest first
             var pagedBorgs = borgs.OrderByDescending(x => x.BorgId)
@@ -419,7 +447,7 @@ namespace BorgLink.Services
         /// <param name="attributes">Any attributes to filter by</param>
         /// <param name="condition">The current condition of the borg to search by</param>
         /// <returns>A list of borgs</returns>
-        public IEnumerable<Borg> GetBorgs(int? parentId, int? childId, List<string> attributes, Condition? condition)
+        public IQueryable<Borg> GetBorgs(int? parentId, int? childId, List<string> attributes, Condition? condition)
         {
             // Get borgs
             var borgs = _borgRepository.GetAllWithAttributes();
@@ -459,14 +487,14 @@ namespace BorgLink.Services
                 borgs = borgs.Where(x => x.ChildId != null);
 
             // Return the query
-            return borgs.AsEnumerable();
+            return borgs;
         }
 
         /// <summary>
         /// Get all Borgs not in sequence
         /// </summary>
         /// <returns>Unsequenced Borgs (therefore missing)</returns>
-        public List<int> GetMissingBorgIds()
+        public async Task<List<int>> GetMissingBorgIdsAsync()
         {
             // Get all the borgs
             var borgs = _borgRepository.GetAll()
@@ -498,6 +526,19 @@ namespace BorgLink.Services
 
                 // Set the previous value
                 previousValue = borgs[i].BorgId;
+            }
+
+            // Now for any above
+            var newestId = await _borgTokenService.GetTotalGeneratedCountAsync();
+
+            // Get the latest id from the imported
+            var latestId = borgs.LastOrDefault()?.BorgId;
+            if(latestId != null)
+            {
+                for (int i = latestId.Value + 1; i <= newestId; i++)
+                {
+                    missingBorgs.Add(i);
+                }
             }
 
             // Return missing Borgs

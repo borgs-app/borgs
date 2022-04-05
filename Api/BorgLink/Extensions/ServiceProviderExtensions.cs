@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using BorgLink.Api.Models;
+using BorgLink.Services.Platform;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -40,8 +42,8 @@ namespace BorgLink.Extensions
                                          maxRetryCount: 10,
                                          maxRetryDelay: TimeSpan.FromSeconds(5),
                                          errorNumbersToAdd: null)
-                                     // Timeout occours after 60 seconds
-                                     .CommandTimeout(60)).UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
+                                     // Timeout occours after 30 seconds
+                                     .CommandTimeout(30)).UseLoggerFactory(LoggerFactory.Create(builder => builder.AddConsole()))
                            );
 
         }
@@ -64,6 +66,26 @@ namespace BorgLink.Extensions
                 options.Providers.Add<GzipCompressionProvider>();
                 options.MimeTypes = mimeTypes;
             });
+
+            return services;
+        }
+
+
+        /// <summary>
+        /// Sets up the error mapping service
+        /// </summary>
+        /// <param name="services">The service provider</param>
+        public static IServiceCollection LoadErrorMappings(this IServiceCollection services)
+        {
+            // Get the mappings
+            var mappingJson = File.ReadAllText("failedresponsemappings.json");
+
+            // Convert to obj
+            var mappings = JsonConvert.DeserializeObject<List<ErrorMap>>(mappingJson);
+
+            services.AddTransient<FailedResponseMappingService>(s =>
+                new FailedResponseMappingService(s.GetService<ILogger<FailedResponseMappingService>>(), Options.Create(mappings), "Development")
+            );
 
             return services;
         }

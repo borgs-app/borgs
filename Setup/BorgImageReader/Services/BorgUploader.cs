@@ -174,11 +174,11 @@ namespace BorgImageReader
             foreach (var layer in layers)
             {
                 // Convert to out new format
-                var layersItems = layer.LayerItems.Select(x => new CreateLayerItem() 
-                    {
-                       Chance = new BigInteger(x.Chance),
-                       LayerIndex = layerCounter,
-                       AttributeName = x.Name,
+                var layersItems = layer.LayerItems.Select(x => new CreateLayerItem()
+                {
+                    Chance = new BigInteger(x.Chance),
+                    LayerIndex = layerCounter,
+                    AttributeName = x.Name,
                 }).ToList();
 
                 allLayerItems.AddRange(layersItems);

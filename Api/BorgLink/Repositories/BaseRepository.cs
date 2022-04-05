@@ -3,6 +3,7 @@ using BorgLink.Utils;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -68,7 +69,7 @@ namespace BorgLink.Repositories
         /// </summary>
         /// <param name="tableName">Optional tablename param</param>
         /// <returns>List of items</returns>
-        public virtual IEnumerable<T> GetAll(string tableName = null)
+        public virtual IQueryable<T> GetAll(string tableName = null)
         {
             return _context.GetPropertyValue(tableName ?? $"{typeof(T).Name}s");
         }

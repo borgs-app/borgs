@@ -1,8 +1,11 @@
 ﻿using BorgLink.Ethereum;
+using BorgLink.Models;
 using BorgLink.Models.Options;
+using BorgLink.Models.Paging;
 using BorgLink.Services.Ethereum;
 using BorgLink.Services.Platform;
 using BorgLink.Utils;
+using Hangfire;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -11,31 +14,28 @@ using Nethereum.ABI.FunctionEncoding.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace BorgLink.Services
 {
     /// <summary>
-    /// Event listener service
+    /// Event sync service
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class BorgEventListenerService<T> : BackgroundService
-        where T : IEventDTO, new()
+    public class BorgEventSyncPingService : BackgroundService
     {
-        private BorgEventListenerOptions _options;
-        private BorgTokenService _borgTokenService;
-        private BorgService _borgService;
-        private WebhookService _WebhookService;
-        private TelegramService _telegramService;
-        private ILogger<BorgEventListenerService<T>> _logger;
+        private BorgEventSyncPingOptions _options;
+        private ILogger<BorgEventSyncPingService> _logger;
         private IServiceScopeFactory _serviceScopeFactory;
+        private TelegramService _telegramService;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="serviceScopeFactory">The service scope (from DI)</param>
-        public BorgEventListenerService(IServiceScopeFactory serviceScopeFactory)
+        public BorgEventSyncPingService(IServiceScopeFactory serviceScopeFactory)
         {
             _serviceScopeFactory = serviceScopeFactory;
         }
@@ -46,12 +46,9 @@ namespace BorgLink.Services
         public void SetupServices()
         {
             var scope = _serviceScopeFactory.CreateScope();
-            _options = scope.ServiceProvider.GetService<IOptions<BorgEventListenerOptions>>()?.Value;
-            _borgTokenService = scope.ServiceProvider.GetService<BorgTokenService>();
-            _borgService = scope.ServiceProvider.GetService<BorgService>();
-            _WebhookService = scope.ServiceProvider.GetService<WebhookService>();
+            _options = scope.ServiceProvider.GetService<IOptions<BorgEventSyncPingOptions>>()?.Value;
+            _logger = scope.ServiceProvider.GetService<ILogger<BorgEventSyncPingService>>();
             _telegramService = scope.ServiceProvider.GetService<TelegramService>();
-            _logger = scope.ServiceProvider.GetService<ILogger<BorgEventListenerService<T>>>();
         }
 
         /// <summary>
@@ -72,7 +69,7 @@ namespace BorgLink.Services
             {
                 while (true)
                 {
-                    await SubscribeToEvent();
+                    await SyncEvents();
                     await Task.Delay(1000);
                 }
             });
@@ -82,7 +79,7 @@ namespace BorgLink.Services
         /// Check for new events
         /// </summary>
         /// <returns></returns>
-        private async Task SubscribeToEvent()
+        private async Task SyncEvents()
         {
             // Setup required services
             SetupServices();
@@ -93,18 +90,18 @@ namespace BorgLink.Services
             try
             {
                 // Calculate how long sleep for
-                _logger.LogDebug($"{DateTime.UtcNow}|Sleep time for {typeof(T)} request service is: {time}");
+                _logger.LogDebug($"{DateTime.UtcNow}|Sleep time for event sync ping is: {time}");
 
-                // Subscribe to the contract event
-                await _borgTokenService.SubscribeToBorgEvent<T>(_borgService.SaveBorg);
+                // Ping url
+                var web = new WebClient();
+                var responseString = web.DownloadString(_options.Url);
             }
             catch (Exception ex)
             {
-                // Application logs
-                _logger.LogCritical(ex.ToString());
+                // _logger.LogCritical(ex.ToString());
 
                 // Telegram loggers
-                await _telegramService.EchoAsync($"{this.GetType()} {ex.Message}");
+                // await _telegramService.EchoAsync($"{this.GetType()} {ex.Message}");
             }
             finally
             {

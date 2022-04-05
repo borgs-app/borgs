@@ -2,6 +2,7 @@
 using BorgLink.Ethereum;
 using BorgLink.Models;
 using BorgLink.Models.Options;
+using Hangfire;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Nethereum.ABI.FunctionEncoding.Attributes;
@@ -28,6 +29,7 @@ namespace BorgLink.Services.Ethereum
     /// </summary>
     public class BorgTokenService
     {
+        private readonly TelegramService _telegramService;
         private readonly ILogger<BorgTokenService> _logger;
         private readonly IMapper _mapper;
         private readonly BorgTokenServiceOptions _options;
@@ -39,10 +41,11 @@ namespace BorgLink.Services.Ethereum
         /// <param name="mapper">The mapper</param>
         /// <param name="options">Options</param>
         /// <param name="logger">The class logger</param>
-        public BorgTokenService(IMapper mapper, IOptions<BorgTokenServiceOptions> options, ILogger<BorgTokenService> logger)
+        public BorgTokenService(TelegramService telegramService, IMapper mapper, IOptions<BorgTokenServiceOptions> options, ILogger<BorgTokenService> logger)
         {
             _logger = logger;
             _options = options.Value;
+            _telegramService = telegramService;
             _mapper = mapper;
         }
 
@@ -74,7 +77,7 @@ namespace BorgLink.Services.Ethereum
         public async Task<GetBorgOutputDTO> GetBorgAsync(int borgId)
         {
             // Build the function call
-            var getBorgFunction = new GetBorgFunction() { BorgId = borgId };
+            var getBorgFunction = new GetBorgFunction() { BorgId = new BigInteger(borgId) };
 
             // Get client
             var client = GetStandardTokenService();
@@ -169,7 +172,7 @@ namespace BorgLink.Services.Ethereum
         /// <typeparam name="T">The type of event to subscribe to</typeparam>
         /// <param name="action">The action to execute on callback from event firing</param>
         /// <returns>An async task</returns>
-        public async Task SubscribeToBorgEvent<T>(Func<Borg, bool, Task<Borg>> action)
+        public async Task SubscribeToBorgEvent<T>(Func<Borg, bool, bool> action)
             where T : IEventDTO, new()
         {
             // Get client
@@ -192,25 +195,17 @@ namespace BorgLink.Services.Ethereum
                     // Attach a handler for event logs
                     subscription.GetSubscriptionDataResponsesAsObservable().Subscribe(async log =>
                     {
-                        try
-                        {
-                            // Decode the log into a typed event log
-                            var decodedEvent = log.DecodeEvent<T>();
+                        // Decode the log into a typed event log
+                        var decodedEvent = log.DecodeEvent<T>();
 
-                            // Map to common object (Borg)
-                            if (decodedEvent != null)
-                            {
-                                //Map
-                                var mappedBorg = _mapper.Map<Borg>(decodedEvent.Event);
-
-                                // Save in db (and create image url)
-                                var actionedItem = await action(mappedBorg, true);
-                            }
-                        }
-                        catch (Exception ex)
+                        // Map to common object (Borg)
+                        if (decodedEvent != null)
                         {
-                            //Log exception
-                            _logger.LogError(ex.StackTrace);
+                            //Map
+                            var mappedBorg = _mapper.Map<Borg>(decodedEvent.Event);
+
+                            // Save in db (and create image url)
+                            var actionedItem = action(mappedBorg, true);
                         }
                     });
 
@@ -235,7 +230,7 @@ namespace BorgLink.Services.Ethereum
                         await handler.SendRequestAsync();
 
                         // Wait some time
-                        await Task.Delay(TimeSpan.FromSeconds(30));
+                        await Task.Delay(TimeSpan.FromSeconds(15));
                     }
                 }
                 catch (Exception ex)
@@ -248,8 +243,30 @@ namespace BorgLink.Services.Ethereum
 
                     // Allow time to unsubscribe
                     await Task.Delay(TimeSpan.FromSeconds(5));
+
+                    // Telegram loggers
+                    await _telegramService.EchoAsync($"{this.GetType()} {ex.Message}");
                 }
             }
+        }
+
+        /// <summary>
+        /// Get the total generated count (bred count + generated count)
+        /// </summary>
+        /// <returns>bred count + generated count</returns>
+        public async Task<BigInteger> GetTotalGeneratedCountAsync()
+        {
+            // Get client
+            var client = GetStandardTokenService();
+
+            // Build the function calls
+            var bredFunction = new TotalBredFunction();
+            var generationFunction = new TotalGeneratedFunction();
+
+            var totalBred = await client.ContractHandler.QueryAsync<TotalBredFunction, BigInteger>(bredFunction, null);
+            var totalGenerated = await client.ContractHandler.QueryAsync<TotalGeneratedFunction, BigInteger>(generationFunction, null);
+
+            return totalBred + totalGenerated;
         }
     }
 }
