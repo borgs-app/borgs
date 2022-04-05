@@ -80,15 +80,15 @@ Example: [{Chance:15,LayerIndex:0,"face_blue"}, ..]
 
 ### Locking for Edit
 
+Once the contract has been setup and locked for edit (which can not be undone once done), then borgs can be generated. 
+
 ```solidity
 function lock() external onlyOwner
 ```
 
-Once the contract has been setup and locked for edit (which can not be undone once done), then borgs can be generated. The attributes for the generated borg are selected using a pseudo-random number which is computed by hashing the previous blockhash and an incrementing counter behind the scenes. Seed generation is not truly random - it can be predicted if you know the previous block's blockhash but it will be hard to determine which attributes will be generated since the chances for these are hidden from public view (attributes are weighted random) and the attributes are not entered in alphabetical order. 
-
 ### Generate Borg
 
-A random Borg can be generated using the method call below.
+A random Borg can be generated using the method call below. The attributes for the generated borg are selected using a pseudo-random number which is computed by hashing the previous blockhash and an incrementing counter behind the scenes. Seed generation is not truly random - it can be predicted if you know the previous block's blockhash but it will be hard to determine which attributes will be generated since the chances for these are hidden from public view (attributes are weighted random) and the attributes are not entered in alphabetical order. 
 
 ```solidity
 function generateBorg() external payable usable returns(uint256)
@@ -112,7 +112,7 @@ function getBorg(uint256 borgId) public view returns(string memory name, string[
 
 The code to convert the 1D array into an image has been provided below in a few different languages:
 
-### Javascript
+#### Javascript
 ```javascript
 drawImage(imgHexValues) {
      var canvas = this.$el,
@@ -136,7 +136,7 @@ drawImage(imgHexValues) {
 }
 ```
 
-### C#
+#### C#
 
 ```CSharp
 /// <summary>
@@ -175,7 +175,7 @@ public static Bitmap ConvertBorgToBitmap(List<string> hexValues)
 }
 ```
 
-### Java
+#### Java
 
 ```Java
 /// <summary>
