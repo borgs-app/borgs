@@ -6,12 +6,13 @@ This project deployed: https://borgs.app/
 
 Borgs is an ERC721 non-fungible token which can be deployed to any network that supports Solidity. Our smart contract generates and allows for the breeding of NFTs completely on chain - no side project required! The protocol serves as an open standard to be used or build upon for generative art on the blockchain and anyone is free to take this project and use their own art to generate similar projects. This project contains:
 
-- The ERC721 Borgs contract
-- A hosted service which listens for Borg events and copies them to a database for quick access 
-- A sync for backdated events
-- An API which provides public access to view borgs
-- The Borgs contract itself
-- An uploader that populates the contract ready for generations (although you must provide your own images!)
+- ERC721 Borgs contract
+- MSSQL Database for API
+- .NET Core 3.1 hosted service which listens for Borg events and copies them to a database for quick access 
+- .NET Core 3.1 sync for backdated events
+- .NET Core 3.1 API which provides public access to view borgs
+- Solidity Borgs contract
+- A simple .NET Core console application that populates the contract ready for generations (although you must provide your own images!)
 
 If you have any questions, please reach out at [https://discord.gg/7zEd995C](https://discord.gg/7zEd995C)
 
