@@ -50,7 +50,7 @@ function addLayer(string memory layerName) external onlyOwner editable
 
 ### Add Blanks
 
-Adds all blank attributes in 1 fell swoop
+Adds all blank attributes in 1 fell swoop. 
 
 ```solidity
 function addBlanks(string[] attributeNames) external onlyOwner editable
@@ -60,10 +60,10 @@ function addBlanks(string[] attributeNames) external onlyOwner editable
 
 ### Create Borg Attributes
 
-Creates a borg attributre which can later be linked to a layer. The attribute is made up of colors and positions of those colors.
+Creates a borg attributre which can later be linked to a layer. The attribute is made up of colors and position (index/es) of those colors in the 1d output image. It is to be noted that the hexColors index is matched to the index of the positions ie. hexColor[2] will use positions[2]. 
 
 ```solidity
-function createBorgAttribute(string borgAttributeName, byte[][] hexColours, uint256[][] positions) external onlyOwner editable
+function createBorgAttribute(string borgAttributeName, byte[][] hexColors, uint256[][] positions) external onlyOwner editable
 ```
 
 *Example*: "face_blue", [[70,70,48,48,48,48,48,48], [70,48,48,48,48,48,48,48]], [[30,36,38,..],[12,22,43,..]]
