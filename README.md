@@ -48,9 +48,9 @@ function addLayer(string memory layerName) external onlyOwner editable
 
 Example: 12
 
-Adds all blank attributes in 1 fell swoop
-
 ### Add Blanks
+
+Adds all blank attributes in 1 fell swoop
 
 ```solidity
 function addBlanks(string[] attributeNames) external onlyOwner editable
@@ -70,15 +70,13 @@ Example: "face_blue", [0][70,70,48,48,48,48,48,48], [0][30,36,38..]
 
 ### Add Attributes To Layers
 
-Finally link up the attributes to layers (and define their chances). 
+Finally link up the attributes to layers (and define their chances). Borgs have 10 layers and a range of between 4-20 layer items per layer, this being said it is no limit!
 
 ```solidity
 function addLayerItems(CreateLayerItems[] layerItems) external onlyOwner editable
 ```
 
 Example: [{Chance:15,LayerIndex:0,"face_blue"}, ..]
-
-Borgs have 10 layers and a range of between 4-20 layer items per layer, this being said it is no limit! It is also important to note that the contract requires locking for edit before a user can interact with the contract.
 
 ### Locking for Edit
 
