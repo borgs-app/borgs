@@ -88,13 +88,15 @@ Once the contract has been setup and locked for edit (which can not be undone on
 
 ### Generate Borg
 
+A random Borg can be generated using the method call below.
+
 ```solidity
 function generateBorg() external payable usable returns(uint256)
 ```
 
-Once more than 1 borg has been generated it is then possible to breed the borgs (as long as both are owned by the persion trying to breed)
-
 ### Breed Borgs
+
+Once more than 1 borg has been generated it is then possible to breed the borgs (as long as both are owned by the persion trying to breed).
 
 ```solidity
 function breedBorgs(uint256 borgId1, uint256 borgId2) external usable returns(uint256)
@@ -108,7 +110,7 @@ Since the code to generate/show Borgs is all hosted on the blockchain, there nee
 function getBorg(uint256 borgId) public view returns(string memory name, string[] memory image, string[] memory attributes, uint256 parentId1, uint256 parentId2, uint256 childId)
 ```
 
-The code to convert this 1D array into an image has been provided below in a few different languages:
+The code to convert the 1D array into an image has been provided below in a few different languages:
 
 ### Javascript
 ```javascript
