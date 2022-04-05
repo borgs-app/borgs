@@ -1,4 +1,5 @@
-﻿using BorgLink.Models.Options;
+﻿using BorgLink.Models.Constants;
+using BorgLink.Models.Options;
 using BorgLink.Utils;
 using CoreTweet;
 using CoreTweet.Rest;
@@ -49,21 +50,15 @@ namespace BorgLink.Services
             // Get user
             var user = await userClient.Users.GetAuthenticatedUserAsync();
 
-            // Get image as bytes
-            using var webClient = new WebClient();
-            byte[] imageBytes = webClient.DownloadData(cardUri);
+            // Get image
+            var borgImage = ImageUtils.GetImageFromUri(cardUri, BorgsConstants.BorgBackgroundColor);
+            var borgBytes = ImageUtils.CopyImageToByteArray(borgImage);
+        
+            // Upload photo
+            var uploadedPhoto = await userClient.Upload.UploadTweetImageAsync(borgBytes);
 
-            // Add blue background
-            using var ms = new MemoryStream(imageBytes);
-            var bmp = new Bitmap(ms);
-            var color = System.Drawing.ColorTranslator.FromHtml("#6A8495");
-            bmp = ImageUtils.Transparent2Color(bmp, color);
-
-            // Turn image to bytes
-            var updatedImageBytes = ImageUtils.CopyImageToByteArray(bmp);
-
-            var uploadedPhoto = await userClient.Upload.UploadTweetImageAsync(updatedImageBytes);
-            var tweet = await userClient.Tweets.PublishTweetAsync(new PublishTweetParameters(statusMessage)
+            // Post tweet
+            await userClient.Tweets.PublishTweetAsync(new PublishTweetParameters(statusMessage)
             {
                 Medias = { uploadedPhoto }
             });

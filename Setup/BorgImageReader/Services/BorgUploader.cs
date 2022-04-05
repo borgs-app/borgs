@@ -111,8 +111,8 @@ namespace BorgImageReader
                     {
                         // Get colors
                         var colors = layerItem.LayerPositions.Data.Select(x => x.Key)
-                            //.ToArray()
-                            .Select(y => string.Join(string.Empty, y.Select(c => ((int)c).ToString("X2"))).HexToByteArray()).ToArray();
+                            .Select(y => string.Join(string.Empty, y.Select(c => ((int)c).ToString("X2"))).HexToByteArray())
+                            .ToArray();
 
                         // Get positions
                         var positions = layerItem.LayerPositions.Data.Values.Select(x => x.ToArray()).ToArray();
